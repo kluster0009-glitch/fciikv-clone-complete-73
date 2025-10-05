@@ -14,6 +14,7 @@ import Professor from "./pages/Professor";
 import Events from "./pages/Events";
 import Leaderboard from "./pages/Leaderboard";
 import Auth from "./pages/Auth";
+import AuthCallback from "./pages/Authcallback";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
             <Route path="/qa" element={<ProtectedRoute><QA /></ProtectedRoute>} />
             <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
