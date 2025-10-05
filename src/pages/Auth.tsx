@@ -319,13 +319,15 @@ const Auth = () => {
                 disabled={isLoading}
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
-                  <path fill="#F25022" d="M11.4 24H0V12.6h11.4V24z" />
-                  <path fill="#00A4EF" d="M24 24H12.6V12.6H24V24z" />
-                  <path fill="#7FBA00" d="M11.4 11.4H0V0h11.4v11.4z" />
-                  <path fill="#FFB900" d="M24 11.4H12.6V0H24v11.4z" />
+                  {/* <path fill="#F25022" d="M11.4 24H0V12.6h11.4V24z" /> */}
+                  <path fill="#F25022" d="M11.4 11.4H0V0h11.4v11.4z" />
+                  <path fill="#00A4EF" d="M11.4 24H0V12.6h11.4V24z" />
+                  <path fill="#7FBA00" d="M24 11.4H12.6V0H24v11.4z" />
+                  <path fill="#FFB900" d="M24 24H12.6V12.6H24V24z" />
                 </svg>
                 Continue with Microsoft
               </Button>
+              
             </div>
 
             <div className="relative">
