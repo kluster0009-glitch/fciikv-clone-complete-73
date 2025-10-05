@@ -11,26 +11,30 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Eye, EyeOff, Mail, Lock, User, ArrowLeft } from 'lucide-react';
+import { BACKEND_URL } from "@/config";
 
-const authSchema = z.object({
-  email: z.string().email('Invalid email address').max(255, 'Email must be less than 255 characters'),
-  password: z.string().min(6, 'Password must be at least 6 characters').max(128, 'Password must be less than 128 characters'),
-  confirmPassword: z.string().optional(),
-  fullName: z.string().optional(),
-}).refine((data) => {
-  if (data.confirmPassword !== undefined) {
-    return data.password === data.confirmPassword;
-  }
-  return true;
-}, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
+// Schema for when isSignUp is FALSE
+export const signInSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(1, 'Password is required'), // Or whatever your min length is
 });
 
-type AuthFormData = z.infer<typeof authSchema>;
+// Schema for when isSignUp is TRUE
+export const signUpSchema = z.object({
+  fullName: z.string().min(2, 'Full name is required'),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  confirmPassword: z.string(),
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ['confirmPassword'], // Apply the error to the confirmPassword field
+});
+
+// You can also create a combined type for your form data
+export type AuthFormData = z.infer<typeof signUpSchema>;
 
 const Auth = () => {
-  const backend_url = "http://localhost:3000"
+  
   const [isSignUp, setIsSignUp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -38,8 +42,11 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Conditionally choose the schema
+  const currentSchema = isSignUp ? signUpSchema : signInSchema;
+
   const form = useForm<AuthFormData>({
-    resolver: zodResolver(authSchema),
+    resolver: zodResolver(currentSchema),
     defaultValues: {
       email: '',
       password: '',
@@ -56,7 +63,7 @@ const Auth = () => {
           const email = session.user.email;
           if (email) {
             // Call backend to verify domain
-            const verificationResponse = await fetch(`${backend_url}/api/verify-email`, {
+            const verificationResponse = await fetch(`${BACKEND_URL}/api/verify-email`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ email }),
@@ -70,7 +77,7 @@ const Auth = () => {
               toast({
                 variant: "destructive",
                 title: "Access denied",
-                description: result.message || "Please use your student email address.",
+                description: result.message || "Please use your institutional email address.",
               });
 
               return; // Stop navigation
@@ -87,7 +94,7 @@ const Auth = () => {
       if (session?.user) {
         const email = session.user.email;
         if (email) {
-          const verificationResponse = await fetch(`${backend_url}/api/verify-email`, {
+          const verificationResponse = await fetch(`${BACKEND_URL}/api/verify-email`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email }),
@@ -99,7 +106,7 @@ const Auth = () => {
             toast({
               variant: "destructive",
               title: "Access denied",
-              description: result.message || "Please use your student email address.",
+              description: result.message || "Please use your institutional email address.",
             });
             return;
           }
@@ -115,10 +122,10 @@ const Auth = () => {
 
   const onSubmit = async (data: AuthFormData) => {
     setIsLoading(true);
-
+    console.log("hi")
     try {
       if (isSignUp) {
-        const verificationResponse = await fetch(`${backend_url}/api/verify-email`, {
+        const verificationResponse = await fetch(`${BACKEND_URL}/api/verify-email`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -171,6 +178,7 @@ const Auth = () => {
           });
         }
       } else {
+        console.log("you are trying to sign in ")
         const { error } = await supabase.auth.signInWithPassword({
           email: data.email,
           password: data.password,
@@ -192,6 +200,7 @@ const Auth = () => {
           }
         } else {
           toast({
+            variant: "success",
             title: "Welcome back!",
             description: "You've been signed in successfully.",
           });
@@ -243,7 +252,7 @@ const Auth = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'azure',
         options: {
-          redirectTo: `${window.location.origin}/`
+          redirectTo: `${window.location.origin}/auth/callback`
         }
       });
 
@@ -283,12 +292,12 @@ const Auth = () => {
               <span className="text-black font-bold text-xl">C</span>
             </div>
             <CardTitle className="text-2xl font-bold bg-gradient-to-r from-neon-purple to-neon-cyan bg-clip-text text-transparent">
-              {isSignUp ? 'Create Account' : 'Welcome Back'}
+              {isSignUp ? 'Create your Account' : 'Welcome Back'}
             </CardTitle>
             <CardDescription className="text-muted-foreground">
               {isSignUp
-                ? 'Join CampusConnect to get started'
-                : 'Sign in to your CampusConnect account'
+                ? 'Join CampusConnect — your gateway to the student community'
+                : 'Sign in to your institutional account'
               }
             </CardDescription>
           </CardHeader>
@@ -366,7 +375,7 @@ const Auth = () => {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="Enter your email"
+                    placeholder="Enter your institutional email"
                     className="pl-10 bg-input border-cyber-border focus:border-neon-purple"
                     {...form.register('email')}
                   />
@@ -431,7 +440,7 @@ const Auth = () => {
                 className="w-full bg-gradient-to-r from-neon-purple to-neon-cyan hover:opacity-90 text-black font-semibold"
                 disabled={isLoading}
               >
-                {isLoading ? 'Loading...' : (isSignUp ? 'Create Account' : 'Sign In')}
+                {isLoading ? 'Loading...' : (isSignUp ? 'Join Now' : 'Sign In')}
               </Button>
             </form>
 

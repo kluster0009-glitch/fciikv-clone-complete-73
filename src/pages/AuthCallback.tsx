@@ -2,11 +2,11 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-
+import { BACKEND_URL } from "@/config";
 const AuthCallback = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const backend_url = "http://127.0.0.1:3000";
+
 
   useEffect(() => {
     const handleAuthCallback = async () => {
@@ -29,7 +29,7 @@ const AuthCallback = () => {
           toast({
             variant: "destructive",
             title: "Authentication failed",
-            description: "Could not retrieve your email from Google.",
+            description: "Could not retrieve your email address",
           });
           await supabase.auth.signOut();
           navigate('/auth');
@@ -37,7 +37,7 @@ const AuthCallback = () => {
         }
 
         // 2. Validate email domain with backend
-        const response = await fetch(`${backend_url}/api/verify-email`, {
+        const response = await fetch(`${BACKEND_URL}/api/verify-email`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: user.email }),
@@ -48,14 +48,15 @@ const AuthCallback = () => {
         if (response.ok && result.isValid) {
           // Domain valid → proceed
           toast({
+            variant:"success",
             title: "Welcome!",
-            description: "Signed in successfully via Google.",
+            description: "You've been signed in successfully.",
           });
           navigate('/');
         } else {
           // Domain invalid → delete the user and show toast
           // After detecting invalid domain
-          await fetch(`${backend_url}/api/delete-user`, {
+          await fetch(`${BACKEND_URL}/api/delete-user`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ userId: user.id }),
@@ -65,7 +66,7 @@ const AuthCallback = () => {
           toast({
             variant: "destructive",
             title: "Sign in not allowed",
-            description: result.message || "Please enter your student email address.",
+            description: result.message || "Please enter your institutional email address.",
           });
 
           // Ensure session is cleared
