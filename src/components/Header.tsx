@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   Home, 
   MessageSquare, 
@@ -11,12 +12,14 @@ import {
   Calendar, 
   Trophy,
   Menu,
-  X
+  X,
+  LogOut
 } from 'lucide-react';
 
 const Header = () => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
   
   const navItems = [
     { icon: Home, label: 'Home', path: '/' },
@@ -34,69 +37,86 @@ const Header = () => {
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center space-x-3">
+          <Link to="/" className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-neon-purple to-neon-cyan flex items-center justify-center">
               <span className="text-black font-bold text-lg">C</span>
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-neon-purple to-neon-cyan bg-clip-text text-transparent">
               CampusConnect
             </span>
-          </div>
+          </Link>
 
-          {/* Navigation */}
-          <nav className="hidden lg:flex items-center space-x-1">
-            {navItems.map((item, index) => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.path;
-              return (
-                <Link key={index} to={item.path}>
-                  <Button
-                    variant={isActive ? "default" : "ghost"}
-                    size="sm"
-                    className={`
-                      ${isActive 
-                        ? 'bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/30 hover:bg-neon-cyan/30' 
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                      }
-                      transition-all duration-200
-                    `}
-                  >
-                    <Icon className="w-4 h-4 mr-2" />
-                    {item.label}
-                  </Button>
-                </Link>
-              );
-            })}
-          </nav>
+          {user ? (
+            <>
+              {/* Navigation - Only show when authenticated */}
+              <nav className="hidden lg:flex items-center space-x-1">
+                {navItems.map((item, index) => {
+                  const Icon = item.icon;
+                  const isActive = location.pathname === item.path;
+                  return (
+                    <Link key={index} to={item.path}>
+                      <Button
+                        variant={isActive ? "default" : "ghost"}
+                        size="sm"
+                        className={`
+                          ${isActive 
+                            ? 'bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/30 hover:bg-neon-cyan/30' 
+                            : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                          }
+                          transition-all duration-200
+                        `}
+                      >
+                        <Icon className="w-4 h-4 mr-2" />
+                        {item.label}
+                      </Button>
+                    </Link>
+                  );
+                })}
+              </nav>
 
-          {/* User Actions & Mobile Menu Toggle */}
-          <div className="flex items-center space-x-3">
-            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground hidden sm:flex">
-              🌙
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="border-neon-purple/30 text-neon-purple hover:bg-neon-purple/20 hidden sm:flex"
-            >
-              Sign In
-            </Button>
-            
-            {/* Mobile Menu Button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="lg:hidden text-muted-foreground hover:text-foreground"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </Button>
-          </div>
+              {/* User Actions & Mobile Menu Toggle */}
+              <div className="flex items-center space-x-3">
+                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground hidden sm:flex">
+                  🌙
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="border-destructive/30 text-destructive hover:bg-destructive/20 hidden sm:flex"
+                  onClick={signOut}
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+                
+                {/* Mobile Menu Button */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="lg:hidden text-muted-foreground hover:text-foreground"
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                >
+                  {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                </Button>
+              </div>
+            </>
+          ) : (
+            /* Sign In Button - Only show when not authenticated */
+            <Link to="/auth">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="border-neon-purple/30 text-neon-purple hover:bg-neon-purple/20"
+              >
+                Sign In
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
 
-      {/* Mobile Navigation Menu */}
-      {isMobileMenuOpen && (
+      {/* Mobile Navigation Menu - Only show when authenticated */}
+      {isMobileMenuOpen && user && (
         <div className="lg:hidden bg-cyber-darker/95 backdrop-blur-xl border-b border-cyber-border">
           <div className="container mx-auto px-6 py-4">
             <nav className="space-y-2">
@@ -136,9 +156,14 @@ const Header = () => {
                 <Button 
                   variant="outline" 
                   size="sm"
-                  className="w-full justify-start border-neon-purple/30 text-neon-purple hover:bg-neon-purple/20"
+                  className="w-full justify-start border-destructive/30 text-destructive hover:bg-destructive/20"
+                  onClick={() => {
+                    signOut();
+                    setIsMobileMenuOpen(false);
+                  }}
                 >
-                  Sign In
+                  <LogOut className="w-4 h-4 mr-3" />
+                  Sign Out
                 </Button>
               </div>
             </nav>
