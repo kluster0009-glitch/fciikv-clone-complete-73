@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Eye, EyeOff, Mail, Lock, User, ArrowLeft } from 'lucide-react';
 import { BACKEND_URL } from "@/config";
-
+import AddOrganizationModal from './AddOrganizationModal'; // Adjust path as needed
 // Schema for when isSignUp is FALSE
 export const signInSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -459,6 +459,7 @@ const Auth = () => {
                 {isSignUp ? 'Sign in' : 'Sign up'}
               </button>
             </div>
+            <AddOrganizationModal />
           </CardContent>
         </Card>
       </div>
