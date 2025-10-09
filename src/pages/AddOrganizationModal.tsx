@@ -32,7 +32,7 @@ const orgRequestSchema = z.object({
   }),
   emailDomain: z.string()
     .min(2, 'Email domain is required')
-    .regex(/^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.[a-zA-Z]{2,}$/, 'Invalid domain format (e.g., example.com)'),
+    .regex(/^([a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.)+[a-zA-Z]{2,}$/, 'Invalid domain format (e.g., example.ac.in, example.edu)'),
   organizationSize: z.string().min(1, 'Organization size is required'),
   requesterName: z.string().min(2, 'Your name is required'),
   requesterEmail: z.string().email('Invalid email address'),
@@ -83,6 +83,7 @@ const AddOrganizationModal = () => {
         toast({
           title: 'Request submitted!',
           description: 'We\'ll review your organization request and get back to you soon.',
+          duration: 10000,
         });
         form.reset();
         setOpen(false);
