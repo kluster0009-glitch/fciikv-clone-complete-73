@@ -115,7 +115,7 @@ const AddOrganizationModal = () => {
             <Building2 className="h-4 w-4" />
             Add your Organization
           </Button>
-          <p className="text-xs text-muted-foreground/70 mt-2">
+          <p className="text-sm text-muted-foreground mt-2">
             Is your organization not listed? Submit a request to add it
           </p>
         </div>
