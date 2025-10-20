@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-
+import { AUTH_ENABLED } from '@/config';
 interface AuthContextType {
   user: User | null;
   session: Session | null;
@@ -25,6 +25,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+
+    if (!AUTH_ENABLED) {
+      setUser({ id: 'dev-user', email: 'dev@example.com' } as User);
+      setLoading(false);
+      return;
+    }
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -45,7 +52,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    if (AUTH_ENABLED) {
+      await supabase.auth.signOut();
+    } else {
+      // In dev mode, we just clear the user state
+      setUser(null);
+    }
   };
 
   const value = {
