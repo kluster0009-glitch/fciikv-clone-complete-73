@@ -2,6 +2,8 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { AUTH_ENABLED } from '@/config';
+import { OnboardingModal } from '@/components/OnboardingModal';
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
@@ -23,9 +25,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
-
     if (!AUTH_ENABLED) {
       setUser({ id: 'dev-user', email: 'dev@example.com' } as User);
       setLoading(false);
@@ -38,6 +40,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+
+        // Handle login counter and onboarding
+        if (session?.user && event === 'SIGNED_IN') {
+          setTimeout(() => {
+            handleUserLogin(session.user.id);
+          }, 0);
+        }
       }
     );
 
@@ -50,6 +59,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const handleUserLogin = async (userId: string) => {
+    try {
+      // Fetch current profile
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('login_counter')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return;
+      }
+
+      // Increment login counter
+      const newCount = (profile?.login_counter || 0) + 1;
+      await supabase
+        .from('profiles')
+        .update({ login_counter: newCount })
+        .eq('id', userId);
+
+      // Show onboarding for first-time users
+      if (newCount === 1) {
+        setShowOnboarding(true);
+      }
+    } catch (error) {
+      console.error('Error handling user login:', error);
+    }
+  };
 
   const signOut = async () => {
     if (AUTH_ENABLED) {
@@ -70,6 +109,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   return (
     <AuthContext.Provider value={value}>
       {children}
+      {showOnboarding && user && (
+        <OnboardingModal
+          open={showOnboarding}
+          userId={user.id}
+          userEmail={user.email || ''}
+        />
+      )}
     </AuthContext.Provider>
   );
 };

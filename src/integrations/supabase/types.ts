@@ -162,6 +162,42 @@ export type Database = {
           },
         ]
       }
+      onboarding_survey: {
+        Row: {
+          bio: string | null
+          created_at: string | null
+          department: string | null
+          full_name: string | null
+          id: number
+          roll_number: string | null
+          user_id: string
+          username: string | null
+          where_heard_about_us: string | null
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string | null
+          department?: string | null
+          full_name?: string | null
+          id?: number
+          roll_number?: string | null
+          user_id: string
+          username?: string | null
+          where_heard_about_us?: string | null
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string | null
+          department?: string | null
+          full_name?: string | null
+          id?: number
+          roll_number?: string | null
+          user_id?: string
+          username?: string | null
+          where_heard_about_us?: string | null
+        }
+        Relationships: []
+      }
       organization_requests: {
         Row: {
           additional_info: string | null
@@ -210,6 +246,7 @@ export type Database = {
           email: string
           full_name: string | null
           id: string
+          login_counter: number
           organization_id: number | null
           profile_picture: string | null
           role: string | null
@@ -224,6 +261,7 @@ export type Database = {
           email: string
           full_name?: string | null
           id: string
+          login_counter?: number
           organization_id?: number | null
           profile_picture?: string | null
           role?: string | null
@@ -238,6 +276,7 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
+          login_counter?: number
           organization_id?: number | null
           profile_picture?: string | null
           role?: string | null
