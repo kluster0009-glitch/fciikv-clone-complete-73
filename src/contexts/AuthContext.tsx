@@ -41,10 +41,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Handle login counter and onboarding
-        if (session?.user && event === 'SIGNED_IN') {
+        // Check if onboarding is required
+        if (session?.user) {
           setTimeout(() => {
-            handleUserLogin(session.user.id);
+            checkOnboardingRequired(session.user.id);
           }, 0);
         }
       }
@@ -55,38 +55,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      
+      if (session?.user) {
+        checkOnboardingRequired(session.user.id);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  const handleUserLogin = async (userId: string) => {
+  const checkOnboardingRequired = async (userId: string) => {
     try {
-      // Fetch current profile
-      const { data: profile, error } = await supabase
+      // Check if required profile fields are filled
+      const { data: profileData } = await supabase
         .from('profiles')
-        .select('login_counter')
+        .select('username, full_name, department, roll_number')
         .eq('id', userId)
         .single();
 
-      if (error) {
-        console.error('Error fetching profile:', error);
-        return;
-      }
+      // Show onboarding if any required field is missing
+      const needsOnboarding = !profileData?.username || 
+                              !profileData?.full_name || 
+                              !profileData?.department || 
+                              !profileData?.roll_number;
 
-      // Increment login counter
-      const newCount = (profile?.login_counter || 0) + 1;
-      await supabase
-        .from('profiles')
-        .update({ login_counter: newCount })
-        .eq('id', userId);
-
-      // Show onboarding for first-time users
-      if (newCount === 1) {
-        setShowOnboarding(true);
-      }
+      setShowOnboarding(needsOnboarding);
     } catch (error) {
-      console.error('Error handling user login:', error);
+      console.error('Error checking onboarding status:', error);
     }
   };
 

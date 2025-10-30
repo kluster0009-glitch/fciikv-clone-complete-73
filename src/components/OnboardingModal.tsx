@@ -27,8 +27,13 @@ export const OnboardingModal = ({ open, userId, userEmail }: OnboardingModalProp
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!username || !fullName) {
+    if (!username || !fullName || !department || !rollNumber || !whereHeard) {
       toast.error('Please fill in all required fields');
+      return;
+    }
+
+    if (whereHeard === 'other' && !otherSource) {
+      toast.error('Please specify where you heard about us');
       return;
     }
 
@@ -113,7 +118,7 @@ export const OnboardingModal = ({ open, userId, userEmail }: OnboardingModalProp
 
             <div className="space-y-2">
               <Label htmlFor="department" className="text-foreground">
-                Department
+                Department <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="department"
@@ -121,12 +126,13 @@ export const OnboardingModal = ({ open, userId, userEmail }: OnboardingModalProp
                 className="bg-input border-border focus:border-neon-purple"
                 value={department}
                 onChange={(e) => setDepartment(e.target.value)}
+                required
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="rollNumber" className="text-foreground">
-                Roll Number
+                Roll Number <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="rollNumber"
@@ -134,15 +140,16 @@ export const OnboardingModal = ({ open, userId, userEmail }: OnboardingModalProp
                 className="bg-input border-border focus:border-neon-purple"
                 value={rollNumber}
                 onChange={(e) => setRollNumber(e.target.value)}
+                required
               />
             </div>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="whereHeard" className="text-foreground">
-              Where did you hear about us?
+              Where did you hear about us? <span className="text-destructive">*</span>
             </Label>
-            <Select value={whereHeard} onValueChange={setWhereHeard}>
+            <Select value={whereHeard} onValueChange={setWhereHeard} required>
               <SelectTrigger className="bg-input border-border focus:border-neon-purple">
                 <SelectValue placeholder="Select an option" />
               </SelectTrigger>
