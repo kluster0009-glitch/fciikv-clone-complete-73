@@ -21,6 +21,7 @@ export const OnboardingModal = ({ open, userId, userEmail }: OnboardingModalProp
   const [rollNumber, setRollNumber] = useState('');
   const [bio, setBio] = useState('');
   const [whereHeard, setWhereHeard] = useState('');
+  const [otherSource, setOtherSource] = useState('');
   const [saving, setSaving] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,16 +49,12 @@ export const OnboardingModal = ({ open, userId, userEmail }: OnboardingModalProp
       if (profileError) throw profileError;
 
       // Save onboarding survey
+      const whereHeardValue = whereHeard === 'other' ? otherSource : whereHeard;
       const { error: surveyError } = await supabase
         .from('onboarding_survey')
         .insert({
           user_id: userId,
-          username,
-          full_name: fullName,
-          department,
-          roll_number: rollNumber,
-          bio,
-          where_heard_about_us: whereHeard,
+          where_heard_about_us: whereHeardValue,
         });
 
       if (surveyError) throw surveyError;
@@ -158,6 +155,15 @@ export const OnboardingModal = ({ open, userId, userEmail }: OnboardingModalProp
                 <SelectItem value="other">Other</SelectItem>
               </SelectContent>
             </Select>
+            {whereHeard === 'other' && (
+              <Input
+                id="otherSource"
+                placeholder="Please specify..."
+                className="bg-input border-border focus:border-neon-purple mt-2"
+                value={otherSource}
+                onChange={(e) => setOtherSource(e.target.value)}
+              />
+            )}
           </div>
 
           <div className="space-y-2">
