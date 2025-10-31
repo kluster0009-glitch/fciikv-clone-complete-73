@@ -62,13 +62,20 @@ const Auth = () => {
         if (session?.user) {
           const email = session.user.email;
           if (email) {
-            // Call backend to verify domain
-            const verificationResponse = await fetch(`${BACKEND_URL}/api/verify-email`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email }),
+            // Verify domain using internal edge function
+            const { data: result, error: verifyError } = await supabase.functions.invoke('verify-email-domain', {
+              body: { email },
             });
-            const result = await verificationResponse.json();
+
+            if (verifyError || !result) {
+              await supabase.auth.signOut();
+              toast({
+                variant: "destructive",
+                title: "Access denied",
+                description: "Could not verify your email domain. Please try again.",
+              });
+              return;
+            }
 
             if (!result.isValid) {
               // If invalid domain, sign out immediately
@@ -94,12 +101,19 @@ const Auth = () => {
       if (session?.user) {
         const email = session.user.email;
         if (email) {
-          const verificationResponse = await fetch(`${BACKEND_URL}/api/verify-email`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email }),
+          const { data: result, error: verifyError } = await supabase.functions.invoke('verify-email-domain', {
+            body: { email },
           });
-          const result = await verificationResponse.json();
+
+          if (verifyError || !result) {
+            await supabase.auth.signOut();
+            toast({
+              variant: "destructive",
+              title: "Access denied",
+              description: "Could not verify your email domain. Please try again.",
+            });
+            return;
+          }
 
           if (!result.isValid) {
             await supabase.auth.signOut();
@@ -124,17 +138,11 @@ const Auth = () => {
     setIsLoading(true);
     try {
       if (isSignUp) {
-        const verificationResponse = await fetch(`${BACKEND_URL}/api/verify-email`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email: data.email }),
+        const { data: verificationResult, error: verifyError } = await supabase.functions.invoke('verify-email-domain', {
+          body: { email: data.email },
         });
 
-        const verificationResult = await verificationResponse.json();
-
-        if (!verificationResponse.ok || !verificationResult.isValid) {
+        if (verifyError || !verificationResult?.isValid) {
           toast({
             variant: "destructive",
             title: "Sign up not allowed",

@@ -36,16 +36,12 @@ const AuthCallback = () => {
           return;
         }
 
-        // 2. Validate email domain with backend
-        const response = await fetch(`${BACKEND_URL}/api/verify-email`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: user.email }),
+        // 2. Validate email domain using internal edge function
+        const { data: result, error: verifyError } = await supabase.functions.invoke('verify-email-domain', {
+          body: { email: user.email },
         });
 
-        const result = await response.json();
-
-        if (response.ok && result.isValid) {
+        if (!verifyError && result?.isValid) {
           // Domain valid → proceed
           toast({
             variant:"success",
@@ -65,7 +61,9 @@ const AuthCallback = () => {
               });
             }
           } catch (deleteError) {
-            console.error('Error deleting invalid user:', deleteError);
+            if (import.meta.env.DEV) {
+              console.error('Error deleting invalid user:', deleteError);
+            }
           }
 
           toast({
@@ -79,7 +77,9 @@ const AuthCallback = () => {
           navigate('/auth');
         }
       } catch (err) {
-        console.error(err);
+        if (import.meta.env.DEV) {
+          console.error(err);
+        }
         toast({
           variant: "destructive",
           title: "Verification failed",
