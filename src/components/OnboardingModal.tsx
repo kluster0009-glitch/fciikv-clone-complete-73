@@ -65,7 +65,7 @@ export const OnboardingModal = ({ open, userId, userEmail }: OnboardingModalProp
       if (surveyError) throw surveyError;
 
       toast.success('Welcome! Your profile has been set up.');
-      window.location.reload();
+      window.location.href = '/';
     } catch (error) {
       console.error('Error saving onboarding:', error);
       toast.error('Failed to save profile. Please try again.');

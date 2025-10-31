@@ -122,7 +122,6 @@ const Auth = () => {
 
   const onSubmit = async (data: AuthFormData) => {
     setIsLoading(true);
-    console.log("hi")
     try {
       if (isSignUp) {
         const verificationResponse = await fetch(`${BACKEND_URL}/api/verify-email`, {
@@ -178,7 +177,6 @@ const Auth = () => {
           });
         }
       } else {
-        console.log("you are trying to sign in ")
         const { error } = await supabase.auth.signInWithPassword({
           email: data.email,
           password: data.password,
