@@ -54,14 +54,19 @@ const AuthCallback = () => {
           });
           navigate('/');
         } else {
-          // Domain invalid → delete the user and show toast
-          // After detecting invalid domain
-          await fetch(`${BACKEND_URL}/api/delete-user`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: user.id }),
-          });
-
+          // Domain invalid → delete the user using secure edge function
+          try {
+            const { data: { session: currentSession } } = await supabase.auth.getSession();
+            if (currentSession?.access_token) {
+              await supabase.functions.invoke('delete-user', {
+                headers: {
+                  Authorization: `Bearer ${currentSession.access_token}`,
+                },
+              });
+            }
+          } catch (deleteError) {
+            console.error('Error deleting invalid user:', deleteError);
+          }
 
           toast({
             variant: "destructive",
