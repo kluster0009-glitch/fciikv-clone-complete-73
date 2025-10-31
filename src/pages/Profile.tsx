@@ -44,11 +44,11 @@ const Profile = () => {
           .eq('id', user.id)
           .single();
 
-        if (error) {
-          console.error('Error loading profile:', error);
-          toast.error('Failed to load profile');
-          return;
-        }
+      if (error) {
+        if (import.meta.env.DEV) console.error('Error loading profile:', error);
+        toast.error('Failed to load profile');
+        return;
+      }
 
         if (data) {
           setUsername(data.username || '');
@@ -77,7 +77,7 @@ const Profile = () => {
                         'email';
         setLoginType(provider.charAt(0).toUpperCase() + provider.slice(1));
       } catch (error) {
-        console.error('Error:', error);
+        if (import.meta.env.DEV) console.error('Error:', error);
         toast.error('Failed to load profile');
       } finally {
         setLoading(false);
@@ -116,7 +116,7 @@ const Profile = () => {
         .eq('id', user.id);
 
       if (error) {
-        console.error('Error updating profile:', error);
+        if (import.meta.env.DEV) console.error('Error updating profile:', error);
         toast.error('Failed to save profile');
         return;
       }
@@ -124,17 +124,41 @@ const Profile = () => {
       toast.success('Profile updated successfully!');
       setIsEditing(false);
     } catch (error) {
-      console.error('Error:', error);
+      if (import.meta.env.DEV) console.error('Error:', error);
       toast.error('Failed to save profile');
     } finally {
       setSaving(false);
     }
   };
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
     setIsEditing(false);
-    // Reload profile to reset any unsaved changes
-    window.location.reload();
+    // Reload profile data to reset any unsaved changes
+    if (!user) return;
+    
+    try {
+      const { data } = await supabase
+        .from('profiles')
+        .select(`
+          *,
+          email_domains:organization_id (
+            organization_name
+          )
+        `)
+        .eq('id', user.id)
+        .single();
+
+      if (data) {
+        setUsername(data.username || '');
+        setFullName(data.full_name || '');
+        setDepartment(data.department || '');
+        setRollNumber(data.roll_number || '');
+        setBio(data.bio || '');
+        setProfileImage(data.profile_picture || '');
+      }
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('Error reloading profile:', error);
+    }
   };
 
   if (loading) {
