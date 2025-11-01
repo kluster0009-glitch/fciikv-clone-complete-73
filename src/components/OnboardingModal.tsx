@@ -53,13 +53,15 @@ export const OnboardingModal = ({ open, userId, userEmail }: OnboardingModalProp
 
       if (profileError) throw profileError;
 
-      // Save onboarding survey
+      // Save onboarding survey (upsert to handle re-submissions)
       const whereHeardValue = whereHeard === 'other' ? otherSource : whereHeard;
       const { error: surveyError } = await supabase
         .from('onboarding_survey')
-        .insert({
+        .upsert({
           user_id: userId,
           where_heard_about_us: whereHeardValue,
+        }, {
+          onConflict: 'user_id'
         });
 
       if (surveyError) throw surveyError;
