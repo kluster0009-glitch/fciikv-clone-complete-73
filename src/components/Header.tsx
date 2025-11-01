@@ -24,8 +24,15 @@ import logo from '@/assets/logo.svg';
 const Header = () => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLogoFlipping, setIsLogoFlipping] = useState(false);
   const { user, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
+  
+  const handleThemeToggle = () => {
+    setIsLogoFlipping(true);
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+    setTimeout(() => setIsLogoFlipping(false), 600);
+  };
   
   const navItems = [
     { icon: Home, label: 'Home', path: '/' },
@@ -45,7 +52,11 @@ const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-0.5">
-            <img src={logo} alt="Kluster" className="h-12 w-auto -mr-1" />
+            <img 
+              src={logo} 
+              alt="Kluster" 
+              className={`h-12 w-auto -mr-1 transition-transform duration-600 ${isLogoFlipping ? 'animate-flip' : ''}`}
+            />
             <span className="text-2xl font-semibold font-space bg-gradient-to-r from-soft-cyan to-soft-violet bg-clip-text text-transparent">
               KLUSTER
             </span>
@@ -85,7 +96,7 @@ const Header = () => {
                   variant="ghost" 
                   size="sm" 
                   className="text-muted-foreground hover:text-foreground hidden sm:flex h-8"
-                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  onClick={handleThemeToggle}
                 >
                   {theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
                 </Button>
@@ -117,7 +128,7 @@ const Header = () => {
                 variant="ghost" 
                 size="sm" 
                 className="text-muted-foreground hover:text-foreground h-8"
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                onClick={handleThemeToggle}
               >
                 {theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
               </Button>
@@ -174,7 +185,7 @@ const Header = () => {
                   variant="ghost" 
                   size="sm" 
                   className="w-full justify-start text-muted-foreground hover:text-foreground"
-                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  onClick={handleThemeToggle}
                 >
                   {theme === 'dark' ? <Moon className="w-4 h-4 mr-3" /> : <Sun className="w-4 h-4 mr-3" />}
                   <span>{theme === 'dark' ? 'Dark' : 'Light'} Mode</span>
