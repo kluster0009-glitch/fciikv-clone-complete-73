@@ -1,5 +1,6 @@
 import React from 'react';
 import Header from '@/components/Header';
+import NoticeCarousel from '@/components/NoticeCarousel';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -55,13 +56,16 @@ const Feed = () => {
     <div className="min-h-screen bg-cyber-dark">
       <Header />
       <div className="pt-20">
-      <div className="container mx-auto px-6 py-8">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-neon-purple to-neon-cyan bg-clip-text text-transparent mb-4">
-            Community Feed
-          </h1>
-        </div>
+        {/* Notice Carousel */}
+        <NoticeCarousel />
+        
+        <div className="container mx-auto px-6 py-8">
+          {/* Page Header */}
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-neon-purple to-neon-cyan bg-clip-text text-transparent mb-4">
+              Community Feed
+            </h1>
+          </div>
 
         <div className="grid lg:grid-cols-4 gap-8">
           {/* Main Feed */}
