@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from 'next-themes';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Home, 
   MessageSquare, 
@@ -33,13 +34,26 @@ const Header = () => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLogoFlipping, setIsLogoFlipping] = useState(false);
+  const [isThemeChanging, setIsThemeChanging] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { user, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
   
   const handleThemeToggle = () => {
     setIsLogoFlipping(true);
+    setIsThemeChanging(true);
     setTheme(theme === 'dark' ? 'light' : 'dark');
-    setTimeout(() => setIsLogoFlipping(false), 600);
+    setTimeout(() => {
+      setIsLogoFlipping(false);
+      setIsThemeChanging(false);
+    }, 800);
+  };
+  
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    setTimeout(() => {
+      signOut();
+    }, 400);
   };
   
   const navItems = [
@@ -54,7 +68,20 @@ const Header = () => {
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-cyber-darker/80 backdrop-blur-xl border-b border-cyber-border">
+    <>
+      <AnimatePresence>
+        {isLoggingOut && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+            className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-sm"
+          />
+        )}
+      </AnimatePresence>
+      
+      <header className="fixed top-0 left-0 right-0 z-50 bg-cyber-darker/80 backdrop-blur-xl border-b border-cyber-border">
       <div className="container mx-auto px-6 py-2">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -128,18 +155,43 @@ const Header = () => {
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       onClick={handleThemeToggle}
-                      className="cursor-pointer focus:bg-muted/50 focus:text-foreground"
+                      className="relative cursor-pointer focus:bg-muted/50 focus:text-foreground overflow-hidden"
                     >
-                      {theme === 'dark' ? <Moon className="w-4 h-4 mr-2" /> : <Sun className="w-4 h-4 mr-2" />}
-                      Change Theme
+                      <AnimatePresence>
+                        {isThemeChanging && (
+                          <motion.div
+                            initial={{ x: '-100%', opacity: 0 }}
+                            animate={{ x: '100%', opacity: [0, 1, 1, 0] }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.8, ease: 'easeInOut' }}
+                            className="absolute inset-0 bg-gradient-to-r from-transparent via-soft-cyan/20 to-transparent"
+                          />
+                        )}
+                      </AnimatePresence>
+                      <motion.div 
+                        className="flex items-center relative z-10"
+                        whileHover={{ scale: 1.02 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        {theme === 'dark' ? <Moon className="w-4 h-4 mr-2" /> : <Sun className="w-4 h-4 mr-2" />}
+                        Change Theme
+                      </motion.div>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator className="bg-border-subtle" />
                     <DropdownMenuItem 
-                      onClick={signOut}
-                      className="cursor-pointer focus:bg-destructive/20 focus:text-destructive"
+                      onClick={handleLogout}
+                      className="cursor-pointer focus:bg-destructive/20 focus:text-destructive group hover:text-red-500 transition-colors duration-300"
                     >
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Logout
+                      <motion.div 
+                        className="flex items-center w-full"
+                        whileHover={{ scale: 1.02 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <LogOut className="w-4 h-4 mr-2 group-hover:drop-shadow-[0_0_8px_rgba(239,68,68,0.6)] transition-all duration-300" />
+                        <span className="group-hover:drop-shadow-[0_0_8px_rgba(239,68,68,0.4)] transition-all duration-300">
+                          Logout
+                        </span>
+                      </motion.div>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -230,23 +282,34 @@ const Header = () => {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="w-full justify-start text-muted-foreground hover:text-foreground"
+                  className="w-full justify-start text-muted-foreground hover:text-foreground relative overflow-hidden"
                   onClick={handleThemeToggle}
                 >
-                  {theme === 'dark' ? <Moon className="w-4 h-4 mr-3" /> : <Sun className="w-4 h-4 mr-3" />}
-                  <span>Change Theme</span>
+                  <AnimatePresence>
+                    {isThemeChanging && (
+                      <motion.div
+                        initial={{ x: '-100%', opacity: 0 }}
+                        animate={{ x: '100%', opacity: [0, 1, 1, 0] }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.8, ease: 'easeInOut' }}
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-soft-cyan/20 to-transparent"
+                      />
+                    )}
+                  </AnimatePresence>
+                  {theme === 'dark' ? <Moon className="w-4 h-4 mr-3 relative z-10" /> : <Sun className="w-4 h-4 mr-3 relative z-10" />}
+                  <span className="relative z-10">Change Theme</span>
                 </Button>
                 <Button
                   variant="outline" 
                   size="sm"
-                  className="w-full justify-start border-destructive/30 text-destructive hover:bg-destructive/20"
+                  className="w-full justify-start border-destructive/30 text-destructive hover:bg-destructive/20 hover:text-red-500 group transition-colors duration-300"
                   onClick={() => {
-                    signOut();
+                    handleLogout();
                     setIsMobileMenuOpen(false);
                   }}
                 >
-                  <LogOut className="w-4 h-4 mr-3" />
-                  Logout
+                  <LogOut className="w-4 h-4 mr-3 group-hover:drop-shadow-[0_0_8px_rgba(239,68,68,0.6)] transition-all duration-300" />
+                  <span className="group-hover:drop-shadow-[0_0_8px_rgba(239,68,68,0.4)] transition-all duration-300">Logout</span>
                 </Button>
               </div>
             </nav>
@@ -254,6 +317,7 @@ const Header = () => {
         </div>
       )}
     </header>
+    </>
   );
 };
 
