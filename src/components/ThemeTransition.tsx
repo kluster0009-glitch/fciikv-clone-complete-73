@@ -19,7 +19,7 @@ export const ThemeTransition = () => {
 
   const isDarkToLight = previousTheme === 'dark' && theme === 'light';
   
-  // Subtle background color shift
+  // Colors for the flip animation
   const bgColors = isDarkToLight
     ? {
         from: 'hsl(220, 40%, 8%)', // dark navy
@@ -34,19 +34,33 @@ export const ThemeTransition = () => {
     <AnimatePresence>
       {isAnimating && (
         <motion.div
-          initial={{ backgroundColor: bgColors.from }}
-          animate={{ backgroundColor: bgColors.to }}
+          initial={{ 
+            rotateY: 0,
+            backgroundColor: bgColors.from
+          }}
+          animate={{ 
+            rotateY: 180,
+            backgroundColor: bgColors.to
+          }}
           exit={{ opacity: 0 }}
           transition={{
-            backgroundColor: {
+            rotateY: {
               duration: 1,
               ease: [0.455, 0.03, 0.515, 0.955] // easeInOutQuad
+            },
+            backgroundColor: {
+              duration: 1,
+              ease: [0.455, 0.03, 0.515, 0.955]
             },
             opacity: {
               duration: 0.3
             }
           }}
-          className="fixed inset-0 z-[-1] pointer-events-none"
+          style={{
+            transformStyle: 'preserve-3d',
+            backfaceVisibility: 'hidden'
+          }}
+          className="fixed inset-0 z-[9999] pointer-events-none"
         />
       )}
     </AnimatePresence>
