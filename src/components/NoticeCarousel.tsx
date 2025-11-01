@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   Carousel,
   CarouselContent,
@@ -8,7 +9,7 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from '@/components/ui/carousel';
-import { Info, AlertTriangle, Calendar, Bell } from 'lucide-react';
+import { Info, AlertTriangle, Calendar, Bell, Sparkles } from 'lucide-react';
 
 interface Notice {
   id: number;
@@ -39,28 +40,35 @@ const iconColorMap = {
 
 const NoticeCarousel = () => {
   const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+  const [count, setCount] = useState(0);
 
   // Sample notices - can be replaced with dynamic data
   const notices: Notice[] = [
     {
       id: 1,
       type: 'announcement',
-      message: 'Welcome to Kluster! Check out the latest features in your dashboard.',
+      message: 'Welcome to Kluster! Discover personalized learning paths and connect with your academic community.',
     },
     {
       id: 2,
       type: 'event',
-      message: 'Upcoming webinar: Advanced Study Techniques - September 25th at 3 PM',
+      message: 'Join our live Q&A session: Advanced Study Techniques - September 25th at 3 PM EST',
     },
     {
       id: 3,
       type: 'alert',
-      message: 'System maintenance scheduled for tonight 11 PM - 2 AM EST',
+      message: 'System maintenance scheduled for tonight 11 PM - 2 AM EST. Save your work!',
     },
     {
       id: 4,
       type: 'info',
-      message: 'New resources added to the Library section. Explore now!',
+      message: '50+ new resources added to the Library section this week. Explore cutting-edge research!',
+    },
+    {
+      id: 5,
+      type: 'event',
+      message: 'Campus meetup next Friday! Network with students from top universities.',
     },
   ];
 
@@ -68,47 +76,88 @@ const NoticeCarousel = () => {
   useEffect(() => {
     if (!api) return;
 
+    setCount(api.scrollSnapList().length);
+    setCurrent(api.selectedScrollSnap());
+
+    api.on('select', () => {
+      setCurrent(api.selectedScrollSnap());
+    });
+
     const intervalId = setInterval(() => {
       api.scrollNext();
-    }, 5000); // Auto-slide every 5 seconds
+    }, 6000); // Auto-slide every 6 seconds
 
     return () => clearInterval(intervalId);
   }, [api]);
 
   return (
-    <div className="w-full px-6 py-4">
-      <Carousel
-        setApi={setApi}
-        opts={{
-          align: 'start',
-          loop: true,
-        }}
-        className="w-full"
-      >
-        <CarouselContent>
-          {notices.map((notice) => {
-            const Icon = iconMap[notice.type];
-            return (
-              <CarouselItem key={notice.id}>
-                <Card
-                  className={`p-4 bg-gradient-to-r ${colorMap[notice.type]} backdrop-blur-sm border transition-all duration-300 hover:scale-[1.01]`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`flex-shrink-0 ${iconColorMap[notice.type]}`}>
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    <p className="text-sm md:text-base text-foreground font-medium leading-relaxed">
-                      {notice.message}
-                    </p>
-                  </div>
-                </Card>
-              </CarouselItem>
-            );
-          })}
-        </CarouselContent>
-        <CarouselPrevious className="hidden sm:flex -left-4 bg-cyber-card/80 border-cyber-border hover:bg-cyber-card hover:border-neon-cyan/50 text-foreground" />
-        <CarouselNext className="hidden sm:flex -right-4 bg-cyber-card/80 border-cyber-border hover:bg-cyber-card hover:border-neon-cyan/50 text-foreground" />
-      </Carousel>
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="relative">
+          <Carousel
+            setApi={setApi}
+            opts={{
+              align: 'center',
+              loop: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent>
+              {notices.map((notice) => {
+                const Icon = iconMap[notice.type];
+                return (
+                  <CarouselItem key={notice.id}>
+                    <Card
+                      className={`relative p-6 md:p-8 bg-gradient-to-br ${colorMap[notice.type]} backdrop-blur-xl border-2 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl overflow-hidden group`}
+                    >
+                      {/* Animated background effect */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                      
+                      <div className="relative flex items-start md:items-center gap-4">
+                        <div className={`flex-shrink-0 ${iconColorMap[notice.type]} p-3 rounded-lg bg-background/50 backdrop-blur-sm`}>
+                          <Icon className="w-6 h-6 md:w-7 md:h-7" />
+                        </div>
+                        <div className="flex-1 space-y-2">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Badge 
+                              variant="secondary" 
+                              className={`${iconColorMap[notice.type]} bg-background/60 backdrop-blur-sm text-xs font-semibold uppercase tracking-wider border-0`}
+                            >
+                              {notice.type}
+                            </Badge>
+                            <Sparkles className={`w-3 h-3 ${iconColorMap[notice.type]} animate-pulse`} />
+                          </div>
+                          <p className="text-base md:text-lg text-foreground font-semibold leading-relaxed">
+                            {notice.message}
+                          </p>
+                        </div>
+                      </div>
+                    </Card>
+                  </CarouselItem>
+                );
+              })}
+            </CarouselContent>
+            <CarouselPrevious className="hidden md:flex -left-6 lg:-left-12 h-12 w-12 bg-cyber-card/90 border-2 border-cyber-border hover:bg-cyber-card hover:border-neon-cyan/70 text-foreground shadow-xl backdrop-blur-sm transition-all duration-300 hover:scale-110" />
+            <CarouselNext className="hidden md:flex -right-6 lg:-right-12 h-12 w-12 bg-cyber-card/90 border-2 border-cyber-border hover:bg-cyber-card hover:border-neon-cyan/70 text-foreground shadow-xl backdrop-blur-sm transition-all duration-300 hover:scale-110" />
+          </Carousel>
+
+          {/* Pagination dots */}
+          <div className="flex justify-center gap-2 mt-6">
+            {Array.from({ length: count }).map((_, index) => (
+              <button
+                key={index}
+                onClick={() => api?.scrollTo(index)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  index === current
+                    ? 'w-8 bg-gradient-to-r from-neon-purple to-neon-cyan'
+                    : 'w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                }`}
+                aria-label={`Go to notice ${index + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

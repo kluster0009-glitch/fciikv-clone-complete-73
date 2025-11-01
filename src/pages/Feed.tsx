@@ -1,6 +1,5 @@
 import React from 'react';
 import Header from '@/components/Header';
-import NoticeCarousel from '@/components/NoticeCarousel';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -56,9 +55,6 @@ const Feed = () => {
     <div className="min-h-screen bg-cyber-dark">
       <Header />
       <div className="pt-20">
-        {/* Notice Carousel */}
-        <NoticeCarousel />
-        
         <div className="container mx-auto px-6 py-8">
           {/* Page Header */}
           <div className="mb-8">
