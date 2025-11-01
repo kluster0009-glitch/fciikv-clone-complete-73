@@ -5,17 +5,23 @@ import { motion, AnimatePresence } from 'framer-motion';
 export const ThemeTransition = () => {
   const { theme } = useTheme();
   const [isAnimating, setIsAnimating] = useState(false);
-  const [previousTheme, setPreviousTheme] = useState(theme);
+  const [previousTheme, setPreviousTheme] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    if (theme !== previousTheme && previousTheme) {
+    // Only animate if we have a previous theme and it's different from current
+    if (previousTheme && theme !== previousTheme) {
       setIsAnimating(true);
-      setPreviousTheme(theme);
-      // Auto-complete after animation
-      const timer = setTimeout(() => setIsAnimating(false), 1000);
+      // Reset animation after completion
+      const timer = setTimeout(() => {
+        setIsAnimating(false);
+        setPreviousTheme(theme);
+      }, 1000);
       return () => clearTimeout(timer);
+    } else if (!previousTheme) {
+      // Initialize previous theme on first render
+      setPreviousTheme(theme);
     }
-  }, [theme, previousTheme]);
+  }, [theme]);
 
   const isDarkToLight = previousTheme === 'dark' && theme === 'light';
   
@@ -34,6 +40,7 @@ export const ThemeTransition = () => {
     <AnimatePresence>
       {isAnimating && (
         <motion.div
+          key={`${previousTheme}-${theme}`}
           initial={{ 
             rotateY: 0,
             backgroundColor: bgColors.from
@@ -53,7 +60,8 @@ export const ThemeTransition = () => {
               ease: [0.455, 0.03, 0.515, 0.955]
             },
             opacity: {
-              duration: 0.3
+              duration: 0.2,
+              delay: 0.8
             }
           }}
           style={{
