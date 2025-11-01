@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from 'next-themes';
 import { 
   Home, 
   MessageSquare, 
@@ -14,13 +15,16 @@ import {
   Menu,
   X,
   LogOut,
-  User
+  User,
+  Moon,
+  Sun
 } from 'lucide-react';
 
 const Header = () => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const { theme, setTheme } = useTheme();
   
   const navItems = [
     { icon: Home, label: 'Home', path: '/' },
@@ -78,8 +82,13 @@ const Header = () => {
 
               {/* User Actions & Mobile Menu Toggle */}
               <div className="flex items-center space-x-3">
-                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground hidden sm:flex">
-                  🌙
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-muted-foreground hover:text-foreground hidden sm:flex"
+                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                >
+                  {theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
                 </Button>
                 <Button 
                   variant="outline" 
@@ -103,16 +112,26 @@ const Header = () => {
               </div>
             </>
           ) : (
-            /* Sign In Button - Only show when not authenticated */
-            <Link to="/auth">
+            /* Sign In Button & Theme Toggle - Show when not authenticated */
+            <div className="flex items-center space-x-3">
               <Button 
-                variant="outline" 
-                size="sm"
-                className="border-neon-purple/30 text-neon-purple hover:bg-neon-purple/20"
+                variant="ghost" 
+                size="sm" 
+                className="text-muted-foreground hover:text-foreground"
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               >
-                Sign In
+                {theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
               </Button>
-            </Link>
+              <Link to="/auth">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="border-neon-purple/30 text-neon-purple hover:bg-neon-purple/20"
+                >
+                  Sign In
+                </Button>
+              </Link>
+            </div>
           )}
         </div>
       </div>
@@ -152,10 +171,16 @@ const Header = () => {
               
               {/* Mobile User Actions */}
               <div className="pt-4 border-t border-cyber-border space-y-2">
-                <Button variant="ghost" size="sm" className="w-full justify-start text-muted-foreground hover:text-foreground">
-                  🌙 <span className="ml-3">Dark Mode</span>
-                </Button>
                 <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="w-full justify-start text-muted-foreground hover:text-foreground"
+                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                >
+                  {theme === 'dark' ? <Moon className="w-4 h-4 mr-3" /> : <Sun className="w-4 h-4 mr-3" />}
+                  <span>{theme === 'dark' ? 'Dark' : 'Light'} Mode</span>
+                </Button>
+                <Button
                   variant="outline" 
                   size="sm"
                   className="w-full justify-start border-destructive/30 text-destructive hover:bg-destructive/20"

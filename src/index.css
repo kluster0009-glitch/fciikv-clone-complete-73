@@ -66,6 +66,64 @@
     --transition-glow: all 0.2s ease-out;
   }
 
+  .light {
+    /* Light cyberpunk base colors */
+    --background: 210 40% 98%;
+    --foreground: 222 84% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 84% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 84% 10%;
+
+    /* Vibrant purple primary */
+    --primary: 280 90% 45%;
+    --primary-foreground: 210 40% 98%;
+
+    /* Vibrant cyan secondary */
+    --secondary: 180 80% 40%;
+    --secondary-foreground: 210 40% 98%;
+
+    /* Light muted tones */
+    --muted: 210 40% 90%;
+    --muted-foreground: 215 16% 45%;
+
+    /* Bright accent */
+    --accent: 300 80% 60%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214 32% 85%;
+    --input: 214 32% 90%;
+    --ring: 280 90% 45%;
+
+    /* Custom cyberpunk colors for light mode */
+    --neon-purple: 280 90% 45%;
+    --neon-cyan: 180 80% 40%;
+    --neon-pink: 320 80% 50%;
+    --neon-green: 120 70% 40%;
+    --dark-bg: 210 40% 98%;
+    --darker-bg: 0 0% 100%;
+    --card-bg: 0 0% 100%;
+    --border-glow: 214 32% 75%;
+
+    /* Light mode scrollbar */
+    ::-webkit-scrollbar-track {
+      background: hsl(var(--darker-bg));
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: hsl(var(--neon-purple) / 0.4);
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: hsl(var(--neon-purple) / 0.6);
+    }
+  }
+
   /* Apply dark theme by default */
   * {
     @apply border-border;
