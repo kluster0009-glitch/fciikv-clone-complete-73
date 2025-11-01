@@ -19,6 +19,14 @@ import {
   Moon,
   Sun
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import logo from '@/assets/logo.svg';
 
 const Header = () => {
@@ -92,23 +100,50 @@ const Header = () => {
 
               {/* User Actions & Mobile Menu Toggle */}
               <div className="flex items-center space-x-3">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="text-muted-foreground hover:text-foreground hidden sm:flex h-8"
-                  onClick={handleThemeToggle}
-                >
-                  {theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="border-destructive/30 text-destructive hover:bg-destructive/20 hidden sm:flex h-8"
-                  onClick={signOut}
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
-                </Button>
+                {/* Profile Dropdown - Desktop */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="hidden sm:flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-br from-soft-cyan/20 to-soft-violet/20 border border-soft-cyan/30 hover:border-soft-cyan/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(91,206,250,0.4)] focus:outline-none focus:ring-2 focus:ring-soft-cyan/50">
+                      <Avatar className="w-9 h-9">
+                        <AvatarImage src={user?.user_metadata?.avatar_url} alt={user?.email} />
+                        <AvatarFallback className="bg-gradient-to-br from-soft-cyan to-soft-violet text-background text-sm font-semibold">
+                          {user?.email?.[0]?.toUpperCase() || 'U'}
+                        </AvatarFallback>
+                      </Avatar>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent 
+                    align="end" 
+                    className="w-56 bg-card/95 backdrop-blur-xl border-border-subtle shadow-[0_8px_32px_rgba(0,0,0,0.4)] animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-200"
+                  >
+                    <div className="px-2 py-1.5">
+                      <p className="text-sm font-medium text-foreground">{user?.user_metadata?.full_name || 'User'}</p>
+                      <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                    </div>
+                    <DropdownMenuSeparator className="bg-border-subtle" />
+                    <DropdownMenuItem asChild className="cursor-pointer focus:bg-muted/50 focus:text-foreground">
+                      <Link to="/profile" className="flex items-center">
+                        <User className="w-4 h-4 mr-2" />
+                        Profile
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={handleThemeToggle}
+                      className="cursor-pointer focus:bg-muted/50 focus:text-foreground"
+                    >
+                      {theme === 'dark' ? <Moon className="w-4 h-4 mr-2" /> : <Sun className="w-4 h-4 mr-2" />}
+                      Change Theme
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="bg-border-subtle" />
+                    <DropdownMenuItem 
+                      onClick={signOut}
+                      className="cursor-pointer focus:bg-destructive/20 focus:text-destructive"
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 
                 {/* Mobile Menu Button */}
                 <Button
@@ -181,6 +216,18 @@ const Header = () => {
               
               {/* Mobile User Actions */}
               <div className="pt-4 border-t border-cyber-border space-y-2">
+                <div className="flex items-center gap-3 px-2 py-3 bg-muted/30 rounded-lg">
+                  <Avatar className="w-10 h-10">
+                    <AvatarImage src={user?.user_metadata?.avatar_url} alt={user?.email} />
+                    <AvatarFallback className="bg-gradient-to-br from-soft-cyan to-soft-violet text-background text-sm font-semibold">
+                      {user?.email?.[0]?.toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{user?.user_metadata?.full_name || 'User'}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                  </div>
+                </div>
                 <Button 
                   variant="ghost" 
                   size="sm" 
@@ -188,7 +235,7 @@ const Header = () => {
                   onClick={handleThemeToggle}
                 >
                   {theme === 'dark' ? <Moon className="w-4 h-4 mr-3" /> : <Sun className="w-4 h-4 mr-3" />}
-                  <span>{theme === 'dark' ? 'Dark' : 'Light'} Mode</span>
+                  <span>Change Theme</span>
                 </Button>
                 <Button
                   variant="outline" 
@@ -200,7 +247,7 @@ const Header = () => {
                   }}
                 >
                   <LogOut className="w-4 h-4 mr-3" />
-                  Sign Out
+                  Logout
                 </Button>
               </div>
             </nav>
