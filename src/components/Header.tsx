@@ -44,8 +44,11 @@ const Header = () => {
       <div className="container mx-auto px-6 py-2">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center">
-            <img src={logo} alt="Kluster" className="h-10 w-auto" />
+          <Link to="/" className="flex items-center gap-3">
+            <img src={logo} alt="Kluster" className="h-12 w-auto" />
+            <span className="text-2xl font-semibold bg-gradient-to-r from-soft-cyan to-soft-violet bg-clip-text text-transparent">
+              KLUSTER
+            </span>
           </Link>
 
           {user ? (
