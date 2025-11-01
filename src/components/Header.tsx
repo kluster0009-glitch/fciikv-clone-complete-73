@@ -44,9 +44,9 @@ const Header = () => {
       <div className="container mx-auto px-6 py-2">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-1.5">
-            <img src={logo} alt="Kluster" className="h-12 w-auto" />
-            <span className="text-2xl font-semibold bg-gradient-to-r from-soft-cyan to-soft-violet bg-clip-text text-transparent">
+          <Link to="/" className="flex items-center gap-0.5">
+            <img src={logo} alt="Kluster" className="h-12 w-auto -mr-1" />
+            <span className="text-2xl font-semibold font-space bg-gradient-to-r from-soft-cyan to-soft-violet bg-clip-text text-transparent">
               KLUSTER
             </span>
           </Link>
