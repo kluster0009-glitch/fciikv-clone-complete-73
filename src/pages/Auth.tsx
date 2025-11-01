@@ -12,7 +12,8 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Eye, EyeOff, Mail, Lock, User, ArrowLeft } from 'lucide-react';
 import { BACKEND_URL } from "@/config";
-import AddOrganizationModal from './AddOrganizationModal'; // Adjust path as needed
+import AddOrganizationModal from './AddOrganizationModal';
+import logoSvg from '@/assets/logo.svg';
 // Schema for when isSignUp is FALSE
 export const signInSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -294,8 +295,11 @@ const Auth = () => {
 
         <Card className="glow-border bg-cyber-card/50 backdrop-blur-xl">
           <CardHeader className="space-y-1 text-center">
-            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-neon-purple to-neon-cyan flex items-center justify-center mx-auto mb-4">
-              <span className="text-black font-bold text-xl">C</span>
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <img src={logoSvg} alt="Kluster Logo" className="w-12 h-12" />
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-neon-purple to-neon-cyan bg-clip-text text-transparent">
+                KLUSTER
+              </h1>
             </div>
             <CardTitle className="text-2xl font-bold bg-gradient-to-r from-neon-purple to-neon-cyan bg-clip-text text-transparent">
               {isSignUp ? 'Create your Account' : 'Welcome Back'}
