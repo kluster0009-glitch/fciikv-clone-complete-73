@@ -296,7 +296,7 @@ const Auth = () => {
         <Card className="glow-border bg-cyber-card/50 backdrop-blur-xl">
           <CardHeader className="space-y-1 text-center">
             <div className="flex flex-col items-center justify-center mb-4">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5">
                 <img src={logoSvg} alt="Kluster Logo" className="w-12 h-12" />
                 <h1 className="text-2xl font-semibold font-space bg-gradient-to-r from-soft-cyan to-soft-violet bg-clip-text text-transparent">
                   KLUSTER
