@@ -53,7 +53,7 @@ const Feed = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-cyber-dark">
+    <div className="min-h-screen immersive-bg">
       <Header />
       <div className="pt-20">
         {/* Notice Carousel */}

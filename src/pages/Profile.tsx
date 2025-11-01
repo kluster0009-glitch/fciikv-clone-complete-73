@@ -163,14 +163,14 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-cyber-dark cyber-bg flex items-center justify-center">
+      <div className="min-h-screen immersive-bg flex items-center justify-center">
         <div className="text-foreground">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-cyber-dark cyber-bg">
+    <div className="min-h-screen immersive-bg">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="mb-8 flex items-center justify-between">
           <div>

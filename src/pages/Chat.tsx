@@ -76,7 +76,7 @@ const Chat = () => {
   const currentChannel = channels.myCollege.find(c => c.id === selectedChannel) || channels.myCollege[0];
 
   return (
-    <div className="min-h-screen bg-cyber-dark">
+    <div className="min-h-screen immersive-bg">
       <Header />
       <div className="pt-20">
       <div className="h-[calc(100vh-5rem)] flex">

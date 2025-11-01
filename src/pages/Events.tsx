@@ -63,7 +63,7 @@ const Events = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-cyber-dark">
+    <div className="min-h-screen immersive-bg">
       <Header />
       <div className="pt-20">
       <div className="container mx-auto px-6 py-8">
