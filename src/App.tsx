@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { ThemeTransition } from "@/components/ThemeTransition";
 import Index from "./pages/Index";
 import Feed from "./pages/Feed";
 import QA from "./pages/QA";
@@ -27,6 +28,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <ThemeTransition />
         <BrowserRouter>
           <AuthProvider>
             <Routes>
