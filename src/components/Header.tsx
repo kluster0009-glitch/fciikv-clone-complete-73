@@ -66,7 +66,7 @@ const Header = () => {
             <>
               {/* Navigation - Only show when authenticated */}
               <nav className="hidden lg:flex items-center space-x-1">
-                {navItems.map((item, index) => {
+                {navItems.filter(item => item.label !== 'Home').map((item, index) => {
                   const Icon = item.icon;
                   const isActive = location.pathname === item.path;
                   return (
@@ -151,7 +151,7 @@ const Header = () => {
         <div className="lg:hidden bg-cyber-darker/95 backdrop-blur-xl border-b border-cyber-border">
           <div className="container mx-auto px-6 py-4">
             <nav className="space-y-2">
-              {navItems.map((item, index) => {
+              {navItems.filter(item => item.label !== 'Home').map((item, index) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.path;
                 return (
