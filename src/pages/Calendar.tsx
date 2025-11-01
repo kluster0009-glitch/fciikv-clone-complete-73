@@ -52,7 +52,10 @@ const Calendar = () => {
   const connectGoogleCalendar = async () => {
     try {
       setIsLoading(true);
-      const redirectUri = `${window.location.origin}/auth/callback`;
+      const redirectUri = `${window.location.origin}/calendar`;
+      
+      // Store redirect URI in session storage for callback
+      sessionStorage.setItem('google_calendar_redirect', redirectUri);
       
       // Call edge function to get OAuth URL
       const { data, error } = await supabase.functions.invoke('google-calendar-auth', {
@@ -71,6 +74,46 @@ const Calendar = () => {
       setIsLoading(false);
     }
   };
+
+  // Handle OAuth callback
+  useEffect(() => {
+    const handleOAuthCallback = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      
+      if (code) {
+        try {
+          setIsLoading(true);
+          const redirectUri = sessionStorage.getItem('google_calendar_redirect') || `${window.location.origin}/calendar`;
+          
+          const { data, error } = await supabase.functions.invoke('google-calendar-callback', {
+            body: { code, redirectUri }
+          });
+
+          if (error) throw error;
+          
+          if (data?.success) {
+            toast.success('Google Calendar connected successfully!');
+            setIsConnected(true);
+            
+            // Clean up URL
+            window.history.replaceState({}, document.title, '/calendar');
+            sessionStorage.removeItem('google_calendar_redirect');
+            
+            // Fetch events
+            fetchEvents();
+          }
+        } catch (error) {
+          console.error('OAuth callback error:', error);
+          toast.error('Failed to complete Google Calendar connection');
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+    
+    handleOAuthCallback();
+  }, []);
 
   const fetchEvents = async () => {
     try {
