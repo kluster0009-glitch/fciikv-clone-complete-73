@@ -44,14 +44,13 @@ const Header = () => {
   
   const navItems = [
     { icon: Home, label: 'Home', path: '/' },
-    { icon: MessageSquare, label: 'Feed', path: '/feed' },
+    { icon: MessageSquare, label: 'Cluster', path: '/feed' },
     { icon: HelpCircle, label: 'Q&A', path: '/qa' },
     { icon: MessageCircle, label: 'Chat', path: '/chat' },
     { icon: BookOpen, label: 'Library', path: '/library' },
     { icon: GraduationCap, label: 'Professor', path: '/professor' },
     { icon: Calendar, label: 'Events', path: '/events' },
     { icon: Trophy, label: 'Leaderboard', path: '/leaderboard' },
-    { icon: User, label: 'Profile', path: '/profile' },
   ];
 
   return (
