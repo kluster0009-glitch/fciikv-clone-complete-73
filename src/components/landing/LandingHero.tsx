@@ -23,7 +23,7 @@ const LandingHero = () => {
         <div className="max-w-4xl mx-auto text-center space-y-8">
           {/* Logo */}
           <div className="flex justify-center mb-8">
-            <img src={logo} alt="Kluster" className="h-20 md:h-24 w-auto" />
+            <img src={logo} alt="Kluster" className="h-28 md:h-32 w-auto" />
           </div>
 
           {/* Main headline */}
