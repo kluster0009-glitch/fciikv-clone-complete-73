@@ -47,19 +47,15 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Cyberpunk color palette
-        neon: {
-          purple: "hsl(var(--neon-purple))",
-          cyan: "hsl(var(--neon-cyan))",
-          pink: "hsl(var(--neon-pink))",
-          green: "hsl(var(--neon-green))",
-        },
-        cyber: {
-          dark: "hsl(var(--dark-bg))",
-          darker: "hsl(var(--darker-bg))",
-          card: "hsl(var(--card-bg))",
-          border: "hsl(var(--border-glow))",
-        },
+        // Kluster color palette
+        'soft-cyan': "hsl(var(--soft-cyan))",
+        'soft-violet': "hsl(var(--soft-violet))",
+        'soft-blue': "hsl(var(--soft-blue))",
+        'ambient-glow': "hsl(var(--ambient-glow))",
+        'dark-navy': "hsl(var(--dark-navy))",
+        'darker-navy': "hsl(var(--darker-navy))",
+        'card-bg': "hsl(var(--card-bg))",
+        'border-subtle': "hsl(var(--border-subtle))",
       },
       borderRadius: {
         lg: "var(--radius)",

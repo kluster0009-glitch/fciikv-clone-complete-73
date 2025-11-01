@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
-import HeroSection from '@/components/HeroSection';
-import StatsSection from '@/components/StatsSection';
-import FeaturesSection from '@/components/FeaturesSection';
-import CTASection from '@/components/CTASection';
 import SplashScreen from '@/components/SplashScreen';
+import LandingHero from '@/components/landing/LandingHero';
+import ConnectionsSection from '@/components/landing/ConnectionsSection';
+import IntelligenceSection from '@/components/landing/IntelligenceSection';
+import VerifiedSection from '@/components/landing/VerifiedSection';
+import FinalCTA from '@/components/landing/FinalCTA';
+import Footer from '@/components/landing/Footer';
 
 const Index = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -29,14 +31,16 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-cyber-dark">
+    <div className="min-h-screen immersive-bg">
       <Header />
       <main>
-        <HeroSection />
-        <StatsSection />
-        <FeaturesSection />
-        <CTASection />
+        <LandingHero />
+        <ConnectionsSection />
+        <IntelligenceSection />
+        <VerifiedSection />
+        <FinalCTA />
       </main>
+      <Footer />
     </div>
   );
 };
