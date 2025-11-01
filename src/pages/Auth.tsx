@@ -298,7 +298,7 @@ const Auth = () => {
             <div className="flex flex-col items-center justify-center mb-4">
               <div className="flex items-center gap-3">
                 <img src={logoSvg} alt="Kluster Logo" className="w-12 h-12" />
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-neon-purple to-neon-cyan bg-clip-text text-transparent">
+                <h1 className="text-2xl font-semibold font-space bg-gradient-to-r from-soft-cyan to-soft-violet bg-clip-text text-transparent">
                   KLUSTER
                 </h1>
               </div>
