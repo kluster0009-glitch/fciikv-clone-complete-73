@@ -19,6 +19,7 @@ import {
   Moon,
   Sun
 } from 'lucide-react';
+import logo from '@/assets/logo.svg';
 
 const Header = () => {
   const location = useLocation();
@@ -43,13 +44,8 @@ const Header = () => {
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-neon-purple to-neon-cyan flex items-center justify-center">
-              <span className="text-black font-bold text-lg">C</span>
-            </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-neon-purple to-neon-cyan bg-clip-text text-transparent">
-              CampusConnect
-            </span>
+          <Link to="/" className="flex items-center">
+            <img src={logo} alt="Kluster" className="h-10 w-auto" />
           </Link>
 
           {user ? (

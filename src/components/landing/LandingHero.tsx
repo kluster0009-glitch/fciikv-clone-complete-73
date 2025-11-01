@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
+import logo from '@/assets/logo.svg';
 
 const LandingHero = () => {
   return (
@@ -20,6 +21,11 @@ const LandingHero = () => {
 
       <div className="container mx-auto px-6 py-20 relative z-10">
         <div className="max-w-4xl mx-auto text-center space-y-8">
+          {/* Logo */}
+          <div className="flex justify-center mb-8">
+            <img src={logo} alt="Kluster" className="h-20 md:h-24 w-auto" />
+          </div>
+
           {/* Main headline */}
           <div className="space-y-6">
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-light leading-tight tracking-tight">
