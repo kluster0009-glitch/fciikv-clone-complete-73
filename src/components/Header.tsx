@@ -64,7 +64,6 @@ const Header = () => {
     { icon: BookOpen, label: 'Library', path: '/library' },
     { icon: GraduationCap, label: 'Professor', path: '/professor' },
     { icon: Calendar, label: 'Events', path: '/events' },
-    { icon: Calendar, label: 'Calendar', path: '/calendar' },
     { icon: Trophy, label: 'Leaderboard', path: '/leaderboard' },
   ];
 

@@ -13,7 +13,6 @@ import Chat from "./pages/Chat";
 import Library from "./pages/Library";
 import Professor from "./pages/Professor";
 import Events from "./pages/Events";
-import Calendar from "./pages/Calendar";
 import Leaderboard from "./pages/Leaderboard";
 import Profile from "./pages/Profile";
 import Auth from "./pages/Auth";
@@ -40,7 +39,6 @@ const App = () => (
             <Route path="/library" element={<ProtectedRoute><Library /></ProtectedRoute>} />
             <Route path="/professor" element={<ProtectedRoute><Professor /></ProtectedRoute>} />
             <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
-            <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
             <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
