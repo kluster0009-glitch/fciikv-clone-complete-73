@@ -41,11 +41,11 @@ const Header = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-cyber-darker/80 backdrop-blur-xl border-b border-cyber-border">
-      <div className="container mx-auto px-6 py-4">
+      <div className="container mx-auto px-6 py-2">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <img src={logo} alt="Kluster" className="h-14 w-auto" />
+            <img src={logo} alt="Kluster" className="h-10 w-auto" />
           </Link>
 
           {user ? (
@@ -65,7 +65,7 @@ const Header = () => {
                             ? 'bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/30 hover:bg-neon-cyan/30' 
                             : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                           }
-                          transition-all duration-200
+                          transition-all duration-200 h-8
                         `}
                       >
                         <Icon className="w-4 h-4 mr-2" />
@@ -81,7 +81,7 @@ const Header = () => {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="text-muted-foreground hover:text-foreground hidden sm:flex"
+                  className="text-muted-foreground hover:text-foreground hidden sm:flex h-8"
                   onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                 >
                   {theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
@@ -89,7 +89,7 @@ const Header = () => {
                 <Button 
                   variant="outline" 
                   size="sm"
-                  className="border-destructive/30 text-destructive hover:bg-destructive/20 hidden sm:flex"
+                  className="border-destructive/30 text-destructive hover:bg-destructive/20 hidden sm:flex h-8"
                   onClick={signOut}
                 >
                   <LogOut className="w-4 h-4 mr-2" />
@@ -100,7 +100,7 @@ const Header = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="lg:hidden text-muted-foreground hover:text-foreground"
+                  className="lg:hidden text-muted-foreground hover:text-foreground h-8"
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 >
                   {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -113,7 +113,7 @@ const Header = () => {
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground h-8"
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               >
                 {theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
@@ -122,7 +122,7 @@ const Header = () => {
                 <Button 
                   variant="outline" 
                   size="sm"
-                  className="border-neon-purple/30 text-neon-purple hover:bg-neon-purple/20"
+                  className="border-neon-purple/30 text-neon-purple hover:bg-neon-purple/20 h-8"
                 >
                   Sign In
                 </Button>
