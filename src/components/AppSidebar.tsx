@@ -2,7 +2,6 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from 'next-themes';
 import { 
-  Home, 
   MessageSquare, 
   HelpCircle, 
   BookOpen, 
@@ -28,8 +27,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
-  { icon: Home, label: 'Home', path: '/' },
-  { icon: MessageSquare, label: 'Cluster', path: '/feed' },
+  { icon: MessageSquare, label: 'Cluster', path: '/cluster' },
   { icon: HelpCircle, label: 'Q&A', path: '/qa' },
   { icon: BookOpen, label: 'Library', path: '/library' },
   { icon: GraduationCap, label: 'Professor', path: '/professor' },
