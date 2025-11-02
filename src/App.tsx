@@ -48,18 +48,20 @@ const AppContent = () => {
       {/* Fixed Header with Hamburger and Logo - Always Visible */}
       <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-cyber-darker/95 backdrop-blur-xl border-b border-cyber-border">
         <div className="flex items-center justify-between h-full px-3 gap-2">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <SidebarTrigger className="text-muted-foreground hover:text-foreground">
               <Menu className="w-5 h-5" />
             </SidebarTrigger>
-            <img 
-              src={logo} 
-              alt="Kluster" 
-              className="h-10 w-auto"
-            />
-            <span className="text-2xl font-bold font-space bg-gradient-to-r from-soft-cyan to-soft-violet bg-clip-text text-transparent">
-              KLUSTER
-            </span>
+            <div className="flex items-center gap-1.5">
+              <img 
+                src={logo} 
+                alt="Kluster" 
+                className="h-10 w-auto"
+              />
+              <span className="text-2xl font-bold font-space bg-gradient-to-r from-soft-cyan to-soft-violet bg-clip-text text-transparent">
+                KLUSTER
+              </span>
+            </div>
           </div>
           <Link 
             to="/cluster" 

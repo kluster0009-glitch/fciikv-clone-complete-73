@@ -10,7 +10,8 @@ import {
   Trophy,
   LogOut,
   Moon,
-  Sun
+  Sun,
+  ChevronDown
 } from 'lucide-react';
 import {
   Sidebar,
@@ -25,6 +26,12 @@ import {
 } from '@/components/ui/sidebar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const navItems = [
   { icon: MessageSquare, label: 'Cluster', path: '/cluster' },
@@ -72,7 +79,7 @@ export function AppSidebar() {
                   >
                     <Link to={item.path} className="flex items-center gap-3 px-3 py-2">
                       <item.icon className="w-5 h-5" />
-                      {open && <span>{item.label}</span>}
+                      {open && <span className="text-base font-bold">{item.label}</span>}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -82,58 +89,54 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* Footer with User Info */}
-      <SidebarFooter className="border-t border-cyber-border p-4">
-        <div className="space-y-2">
-          {/* User Profile */}
-          {open ? (
-            <Link to="/profile" className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
-              <Avatar className="w-9 h-9">
-                <AvatarImage src={user?.user_metadata?.avatar_url} alt={user?.email} />
-                <AvatarFallback className="bg-gradient-to-br from-soft-cyan to-soft-violet text-background text-sm font-semibold">
-                  {user?.email?.[0]?.toUpperCase() || 'U'}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">
-                  {user?.user_metadata?.full_name || 'User'}
-                </p>
-                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+      {/* Footer with Profile Dropdown */}
+      <SidebarFooter className="border-t border-cyber-border p-3">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className={`${open ? 'w-full justify-between' : 'w-full justify-center'} p-2 h-auto hover:bg-muted/50 transition-colors`}
+            >
+              <div className="flex items-center gap-3">
+                <Avatar className="w-9 h-9">
+                  <AvatarImage src={user?.user_metadata?.avatar_url} alt={user?.email} />
+                  <AvatarFallback className="bg-gradient-to-br from-soft-cyan to-soft-violet text-background text-sm font-semibold">
+                    {user?.email?.[0]?.toUpperCase() || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                {open && (
+                  <div className="flex-1 min-w-0 text-left">
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {user?.user_metadata?.full_name || 'User'}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                  </div>
+                )}
               </div>
-            </Link>
-          ) : (
-            <Link to="/profile" className="flex items-center justify-center p-2 rounded-lg hover:bg-muted/50 transition-colors">
-              <Avatar className="w-9 h-9">
-                <AvatarImage src={user?.user_metadata?.avatar_url} alt={user?.email} />
-                <AvatarFallback className="bg-gradient-to-br from-soft-cyan to-soft-violet text-background text-sm font-semibold">
-                  {user?.email?.[0]?.toUpperCase() || 'U'}
-                </AvatarFallback>
-              </Avatar>
-            </Link>
-          )}
-
-          {/* Theme Toggle */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleThemeToggle}
-            className={`${open ? 'w-full justify-start' : 'w-full justify-center'} text-muted-foreground hover:text-foreground`}
+              {open && <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent 
+            align="end" 
+            className="w-56 bg-background border-border shadow-lg"
+            sideOffset={8}
           >
-            {theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
-            {open && <span className="ml-3">Change Theme</span>}
-          </Button>
-
-          {/* Logout */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleLogout}
-            className={`${open ? 'w-full justify-start' : 'w-full justify-center'} text-destructive hover:bg-destructive/20`}
-          >
-            <LogOut className="w-4 h-4" />
-            {open && <span className="ml-3">Logout</span>}
-          </Button>
-        </div>
+            <DropdownMenuItem 
+              onClick={handleThemeToggle}
+              className="cursor-pointer"
+            >
+              {theme === 'dark' ? <Moon className="w-4 h-4 mr-2" /> : <Sun className="w-4 h-4 mr-2" />}
+              <span>Change Theme</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={handleLogout}
+              className="cursor-pointer text-destructive focus:text-destructive"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              <span>Logout</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </SidebarFooter>
     </Sidebar>
   );
