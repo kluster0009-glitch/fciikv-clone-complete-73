@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -47,18 +47,26 @@ const AppContent = () => {
     <SidebarProvider>
       {/* Fixed Header with Hamburger and Logo - Always Visible */}
       <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-cyber-darker/95 backdrop-blur-xl border-b border-cyber-border">
-        <div className="flex items-center h-full px-4 gap-4">
-          <SidebarTrigger className="text-muted-foreground hover:text-foreground">
-            <Menu className="w-5 h-5" />
-          </SidebarTrigger>
-          <img 
-            src={logo} 
-            alt="Kluster" 
-            className="h-8 w-auto"
-          />
-          <span className="text-lg font-semibold font-space bg-gradient-to-r from-soft-cyan to-soft-violet bg-clip-text text-transparent">
-            KLUSTER
-          </span>
+        <div className="flex items-center justify-between h-full px-3 gap-2">
+          <div className="flex items-center gap-2">
+            <SidebarTrigger className="text-muted-foreground hover:text-foreground">
+              <Menu className="w-5 h-5" />
+            </SidebarTrigger>
+            <img 
+              src={logo} 
+              alt="Kluster" 
+              className="h-10 w-auto"
+            />
+            <span className="text-2xl font-bold font-space bg-gradient-to-r from-soft-cyan to-soft-violet bg-clip-text text-transparent">
+              KLUSTER
+            </span>
+          </div>
+          <Link 
+            to="/cluster" 
+            className="px-4 py-2 rounded-md bg-gradient-to-r from-soft-cyan to-soft-violet text-background font-medium hover:opacity-90 transition-opacity"
+          >
+            Cluster
+          </Link>
         </div>
       </header>
 
