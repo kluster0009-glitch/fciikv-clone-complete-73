@@ -1,5 +1,4 @@
 import React from 'react';
-import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -61,8 +60,6 @@ const QA = () => {
 
   return (
     <div className="min-h-screen immersive-bg">
-      <Header />
-      <div className="pt-20">
       <div className="container mx-auto px-6 py-8">
         {/* Page Header */}
         <div className="mb-8">
@@ -207,7 +204,6 @@ const QA = () => {
         </div>
       </div>
       </div>
-    </div>
     </div>
   );
 };
