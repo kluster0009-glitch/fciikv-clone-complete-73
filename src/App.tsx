@@ -7,8 +7,10 @@ import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { ThemeTransition } from "@/components/ThemeTransition";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import { Menu } from "lucide-react";
+import logo from "@/assets/logo.svg";
 import Index from "./pages/Index";
 import Feed from "./pages/Feed";
 import QA from "./pages/QA";
@@ -43,7 +45,24 @@ const AppContent = () => {
   // Authenticated routes with sidebar
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full">
+      {/* Fixed Header with Hamburger and Logo - Always Visible */}
+      <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-cyber-darker/95 backdrop-blur-xl border-b border-cyber-border">
+        <div className="flex items-center h-full px-4 gap-4">
+          <SidebarTrigger className="text-muted-foreground hover:text-foreground">
+            <Menu className="w-5 h-5" />
+          </SidebarTrigger>
+          <img 
+            src={logo} 
+            alt="Kluster" 
+            className="h-8 w-auto"
+          />
+          <span className="text-lg font-semibold font-space bg-gradient-to-r from-soft-cyan to-soft-violet bg-clip-text text-transparent">
+            KLUSTER
+          </span>
+        </div>
+      </header>
+
+      <div className="flex min-h-screen w-full pt-16">
         <AppSidebar />
         <main className="flex-1">
           <Routes>

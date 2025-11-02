@@ -54,7 +54,7 @@ const Feed = () => {
 
   return (
     <div className="min-h-screen immersive-bg">
-      <div className="pt-8">
+      <div className="pt-4">
         {/* Notice Carousel */}
         <NoticeCarousel />
         
