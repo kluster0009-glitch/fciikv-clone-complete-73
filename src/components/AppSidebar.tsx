@@ -14,7 +14,7 @@ import {
   User,
   Moon,
   Sun,
-  ChevronLeft
+  Menu
 } from 'lucide-react';
 import {
   Sidebar,
@@ -61,30 +61,29 @@ export function AppSidebar() {
 
   return (
     <Sidebar className={`${open ? 'w-60' : 'w-16'} transition-all duration-300 border-r border-cyber-border bg-cyber-darker/95 backdrop-blur-xl`}>
-      {/* Header with Logo */}
+      {/* Header with Logo and Hamburger */}
       <SidebarHeader className="border-b border-cyber-border p-4">
-        <div className="flex items-center justify-between">
-          {open && (
-            <Link to="/" className="flex items-center gap-0">
-              <img 
-                src={logo} 
-                alt="Kluster" 
-                className="h-8 w-auto"
-              />
+        <div className="flex items-center justify-between gap-2">
+          <Link to="/" className="flex items-center gap-0 flex-1">
+            <img 
+              src={logo} 
+              alt="Kluster" 
+              className="h-8 w-auto"
+            />
+            {open && (
               <span className="text-lg font-semibold font-space bg-gradient-to-r from-soft-cyan to-soft-violet bg-clip-text text-transparent">
                 KLUSTER
               </span>
-            </Link>
-          )}
-          {!open && (
-            <Link to="/" className="flex items-center justify-center w-full">
-              <img 
-                src={logo} 
-                alt="Kluster" 
-                className="h-8 w-auto"
-              />
-            </Link>
-          )}
+            )}
+          </Link>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleSidebar}
+            className="text-muted-foreground hover:text-foreground p-2"
+          >
+            <Menu className="w-5 h-5" />
+          </Button>
         </div>
       </SidebarHeader>
 
@@ -166,17 +165,6 @@ export function AppSidebar() {
           >
             <LogOut className="w-4 h-4" />
             {open && <span className="ml-3">Logout</span>}
-          </Button>
-
-          {/* Toggle Sidebar */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleSidebar}
-            className={`${open ? 'w-full justify-start' : 'w-full justify-center'} text-muted-foreground hover:text-foreground`}
-          >
-            <ChevronLeft className={`w-4 h-4 transition-transform duration-200 ${open ? '' : 'rotate-180'}`} />
-            {open && <span className="ml-3">Collapse</span>}
           </Button>
         </div>
       </SidebarFooter>
