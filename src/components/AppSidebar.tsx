@@ -11,8 +11,10 @@ import {
   Calendar, 
   Trophy,
   LogOut,
+  User,
   Moon,
-  Sun
+  Sun,
+  Menu
 } from 'lucide-react';
 import {
   Sidebar,
@@ -28,6 +30,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import logo from '@/assets/logo.svg';
 
 const navItems = [
   { icon: Home, label: 'Home', path: '/' },
@@ -43,7 +46,7 @@ export function AppSidebar() {
   const { user, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
   const location = useLocation();
-  const { open } = useSidebar();
+  const { open, toggleSidebar } = useSidebar();
   const currentPath = location.pathname;
 
   const handleThemeToggle = () => {
@@ -58,6 +61,32 @@ export function AppSidebar() {
 
   return (
     <Sidebar className={`${open ? 'w-60' : 'w-16'} transition-all duration-300 border-r border-cyber-border bg-cyber-darker/95 backdrop-blur-xl`}>
+      {/* Header with Logo and Hamburger */}
+      <SidebarHeader className="border-b border-cyber-border p-4">
+        <div className="flex items-center justify-between gap-2">
+          <Link to="/" className="flex items-center gap-0 flex-1">
+            <img 
+              src={logo} 
+              alt="Kluster" 
+              className="h-8 w-auto"
+            />
+            {open && (
+              <span className="text-lg font-semibold font-space bg-gradient-to-r from-soft-cyan to-soft-violet bg-clip-text text-transparent">
+                KLUSTER
+              </span>
+            )}
+          </Link>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleSidebar}
+            className="text-muted-foreground hover:text-foreground p-2"
+          >
+            <Menu className="w-5 h-5" />
+          </Button>
+        </div>
+      </SidebarHeader>
+
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
