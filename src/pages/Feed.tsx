@@ -1,6 +1,6 @@
 import React from 'react';
-import Header from '@/components/Header';
 import NoticeCarousel from '@/components/NoticeCarousel';
+import { FloatingMessagesButton } from '@/components/FloatingMessagesButton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -54,10 +54,12 @@ const Feed = () => {
 
   return (
     <div className="min-h-screen immersive-bg">
-      <Header />
-      <div className="pt-20">
+      <div className="pt-8">
         {/* Notice Carousel */}
         <NoticeCarousel />
+        
+        {/* Floating Messages Button */}
+        <FloatingMessagesButton />
         
         <div className="container mx-auto px-6 py-8">
           {/* Page Header */}
