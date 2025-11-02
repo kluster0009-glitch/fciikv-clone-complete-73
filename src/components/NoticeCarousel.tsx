@@ -76,7 +76,7 @@ const NoticeCarousel = () => {
   }, [api]);
 
   return (
-    <div className="w-full px-6 py-4">
+    <div className="w-full px-6 py-6">
       <Carousel
         setApi={setApi}
         opts={{
@@ -91,13 +91,13 @@ const NoticeCarousel = () => {
             return (
               <CarouselItem key={notice.id}>
                 <Card
-                  className={`p-4 bg-gradient-to-r ${colorMap[notice.type]} backdrop-blur-sm border transition-all duration-300 hover:scale-[1.01]`}
+                  className={`p-6 bg-gradient-to-r ${colorMap[notice.type]} backdrop-blur-sm border transition-all duration-300 hover:scale-[1.01] min-h-[120px]`}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-4">
                     <div className={`flex-shrink-0 ${iconColorMap[notice.type]}`}>
-                      <Icon className="w-5 h-5" />
+                      <Icon className="w-6 h-6" />
                     </div>
-                    <p className="text-sm md:text-base text-foreground font-medium leading-relaxed">
+                    <p className="text-base md:text-lg text-foreground font-medium leading-relaxed">
                       {notice.message}
                     </p>
                   </div>

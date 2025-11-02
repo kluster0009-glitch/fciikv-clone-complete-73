@@ -18,7 +18,7 @@ const Feed = () => {
       content: "Just a friendly reminder that the deadline for Fall semester financial aid applications is this Friday, September 13th. Don't miss out! Contact the Financial Aid Office if you have questions.",
       likes: 24,
       comments: 8,
-      image: true
+      image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop'
     },
     {
       id: 2,
@@ -29,7 +29,7 @@ const Feed = () => {
       content: "Congratulations to Mark Johnson from State University for securing a prestigious summer internship at Tech Innovations Inc.! Share your own success stories and inspire others in the community.",
       likes: 45,
       comments: 12,
-      image: true
+      image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&auto=format&fit=crop'
     },
     {
       id: 3,
@@ -40,7 +40,7 @@ const Feed = () => {
       content: "I'm looking for motivated undergraduate students to join my research team working on machine learning applications in healthcare. Great opportunity to gain research experience!",
       likes: 67,
       comments: 23,
-      image: false
+      image: null
     }
   ];
 
@@ -128,8 +128,12 @@ const Feed = () => {
                     <p className="text-muted-foreground leading-relaxed">{post.content}</p>
                     
                     {post.image && (
-                      <div className="w-full h-48 bg-gradient-to-br from-neon-purple/20 to-neon-cyan/20 rounded-lg border border-cyber-border flex items-center justify-center">
-                        <span className="text-muted-foreground">📊 Image Content</span>
+                      <div className="w-full h-64 rounded-lg overflow-hidden border border-cyber-border">
+                        <img 
+                          src={post.image} 
+                          alt={post.title}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        />
                       </div>
                     )}
                   </div>
