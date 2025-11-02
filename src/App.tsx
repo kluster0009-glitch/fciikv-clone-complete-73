@@ -42,7 +42,10 @@ const AppContent = () => {
 
   // Authenticated routes with sidebar
   return (
-    <SidebarProvider>
+    <SidebarProvider style={{
+      "--sidebar-width": "15rem",
+      "--sidebar-width-icon": "4rem",
+    } as React.CSSProperties}>
       <div className="flex min-h-screen w-full">
         <AppSidebar />
         <main className="flex-1">

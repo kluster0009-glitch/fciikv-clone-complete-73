@@ -60,34 +60,34 @@ export function AppSidebar() {
   const isActive = (path: string) => currentPath === path;
 
   return (
-    <Sidebar className={`${open ? 'w-60' : 'w-16'} transition-all duration-300 border-r border-cyber-border bg-cyber-darker/95 backdrop-blur-xl`}>
+    <Sidebar collapsible="icon" className={`${open ? 'w-60' : 'w-16'} transition-all duration-300 border-r border-cyber-border bg-cyber-darker/95 backdrop-blur-xl`}>
       {/* Header with Logo and Hamburger */}
-      <SidebarHeader className="border-b border-cyber-border p-4">
-        <div className="flex items-center justify-between gap-2">
-          <Link to="/" className="flex items-center gap-0 flex-1">
-            <img 
-              src={logo} 
-              alt="Kluster" 
-              className="h-8 w-auto"
-            />
-            {open && (
+      <SidebarHeader className="border-b border-cyber-border p-2">
+        <div className="flex items-center gap-0 ${open ? 'justify-between' : 'justify-center'}` ">
+          {open && (
+            <Link to="/" className="flex items-center gap-0 flex-1">
+              <img 
+                src={logo} 
+                alt="Kluster" 
+                className="h-8 w-auto"
+              />
               <span className="text-lg font-semibold font-space bg-gradient-to-r from-soft-cyan to-soft-violet bg-clip-text text-transparent">
                 KLUSTER
               </span>
-            )}
-          </Link>
+            </Link>
+          )}
           <Button
             variant="ghost"
             size="sm"
             onClick={toggleSidebar}
             className="text-muted-foreground hover:text-foreground p-2"
           >
-            <Menu className="w-5 h-5" />
+            <Menu className="w-6 h-6" />
           </Button>
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent >
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -103,7 +103,7 @@ export function AppSidebar() {
                       transition-all duration-200
                     `}
                   >
-                    <Link to={item.path} className="flex items-center gap-3 px-3 py-2">
+                    <Link to={item.path} className="flex items-center gap-4 px-3 py-4">
                       <item.icon className="w-5 h-5" />
                       {open && <span>{item.label}</span>}
                     </Link>
