@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -114,6 +115,8 @@ const Leaderboard = () => {
 
   return (
     <div className="min-h-screen immersive-bg">
+      <Header />
+      <div className="pt-20">
       <div className="container mx-auto px-6 py-8">
         {/* Page Header */}
         <div className="mb-8">
@@ -318,6 +321,7 @@ const Leaderboard = () => {
         </div>
       </div>
       </div>
+    </div>
     </div>
   );
 };

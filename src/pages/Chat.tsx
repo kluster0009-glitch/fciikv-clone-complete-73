@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Header from '@/components/Header';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -76,7 +77,9 @@ const Chat = () => {
 
   return (
     <div className="min-h-screen immersive-bg">
-      <div className="h-screen flex">
+      <Header />
+      <div className="pt-20">
+      <div className="h-[calc(100vh-5rem)] flex">
         {/* Sidebar */}
         <div className="w-80 bg-cyber-darker/80 backdrop-blur-sm border-r border-cyber-border flex flex-col">
           {/* Search */}
@@ -256,6 +259,7 @@ const Chat = () => {
               </div>
             ))}
           </div>
+        </div>
         </div>
       </div>
     </div>
