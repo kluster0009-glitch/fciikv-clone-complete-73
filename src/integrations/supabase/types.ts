@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      carousel_slides: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          is_active: boolean
+          message: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          message: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          message?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       channel_members: {
         Row: {
           channel_id: number | null
@@ -277,6 +307,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_google_tokens: {
+        Row: {
+          access_token: string
+          created_at: string
+          id: string
+          refresh_token: string | null
+          token_expiry: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          id?: string
+          refresh_token?: string | null
+          token_expiry?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          id?: string
+          refresh_token?: string | null
+          token_expiry?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

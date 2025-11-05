@@ -9,9 +9,10 @@ import {
   type CarouselApi,
 } from '@/components/ui/carousel';
 import { Info, AlertTriangle, Calendar, Bell } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Notice {
-  id: number;
+  id: string;
   type: 'info' | 'alert' | 'event' | 'announcement';
   message: string;
 }
@@ -39,41 +40,50 @@ const iconColorMap = {
 
 const NoticeCarousel = () => {
   const [api, setApi] = useState<CarouselApi>();
+  const [notices, setNotices] = useState<Notice[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Sample notices - can be replaced with dynamic data
-  const notices: Notice[] = [
-    {
-      id: 1,
-      type: 'announcement',
-      message: 'Welcome to Kluster! Check out the latest features in your dashboard.',
-    },
-    {
-      id: 2,
-      type: 'event',
-      message: 'Upcoming webinar: Advanced Study Techniques - September 25th at 3 PM',
-    },
-    {
-      id: 3,
-      type: 'alert',
-      message: 'System maintenance scheduled for tonight 11 PM - 2 AM EST',
-    },
-    {
-      id: 4,
-      type: 'info',
-      message: 'New resources added to the Library section. Explore now!',
-    },
-  ];
+  // Fetch notices from database
+  useEffect(() => {
+    const fetchNotices = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('carousel_slides')
+          .select('*')
+          .eq('is_active', true)
+          .order('display_order', { ascending: true })
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          setNotices(data as Notice[]);
+        }
+      } catch (error) {
+        console.error('Error fetching carousel slides:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNotices();
+  }, []);
 
   // Auto-slide functionality
   useEffect(() => {
-    if (!api) return;
+    if (!api || notices.length === 0) return;
 
     const intervalId = setInterval(() => {
       api.scrollNext();
     }, 5000); // Auto-slide every 5 seconds
 
     return () => clearInterval(intervalId);
-  }, [api]);
+  }, [api, notices.length]);
+
+  // Don't render carousel if there are no notices
+  if (loading || notices.length === 0) {
+    return null;
+  }
 
   return (
     <div className="w-full px-6 py-4">
@@ -91,13 +101,13 @@ const NoticeCarousel = () => {
             return (
               <CarouselItem key={notice.id}>
                 <Card
-                  className={`p-4 bg-gradient-to-r ${colorMap[notice.type]} backdrop-blur-sm border transition-all duration-300 hover:scale-[1.01]`}
+                  className={`p-6 min-h-[120px] bg-gradient-to-r ${colorMap[notice.type]} backdrop-blur-sm border transition-all duration-300 hover:scale-[1.01]`}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-4 h-full">
                     <div className={`flex-shrink-0 ${iconColorMap[notice.type]}`}>
-                      <Icon className="w-5 h-5" />
+                      <Icon className="w-6 h-6" />
                     </div>
-                    <p className="text-sm md:text-base text-foreground font-medium leading-relaxed">
+                    <p className="text-base md:text-lg text-foreground font-medium leading-relaxed">
                       {notice.message}
                     </p>
                   </div>

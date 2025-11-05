@@ -61,7 +61,7 @@ const Feed = () => {
         {/* Floating Messages Button */}
         <FloatingMessagesButton />
         
-        <div className="container mx-auto px-6 py-8">
+        <div className="container mx-auto px-6 pt-2 pb-8">
           {/* Page Header */}
           <div className="mb-8">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-neon-purple to-neon-cyan bg-clip-text text-transparent mb-4">
