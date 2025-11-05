@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import {
   Carousel,
   CarouselContent,
@@ -9,39 +8,34 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from '@/components/ui/carousel';
-import { Info, AlertTriangle, Calendar, Bell } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Notice {
   id: string;
-  type: 'info' | 'alert' | 'event' | 'announcement';
   message: string;
   image_url?: string;
   heading?: string;
-  subheading?: string;
-  button_text?: string;
   button_link?: string;
+  heading_color?: string;
+  heading_font_family?: string;
+  heading_font_size?: string;
+  message_color?: string;
+  message_font_family?: string;
+  message_font_size?: string;
 }
 
-const iconMap = {
-  info: Info,
-  alert: AlertTriangle,
-  event: Calendar,
-  announcement: Bell,
-};
-
-const colorMap = {
-  info: 'from-neon-cyan/20 to-neon-cyan/10 border-neon-cyan/30',
-  alert: 'from-neon-pink/20 to-neon-pink/10 border-neon-pink/30',
-  event: 'from-neon-purple/20 to-neon-purple/10 border-neon-purple/30',
-  announcement: 'from-neon-green/20 to-neon-green/10 border-neon-green/30',
-};
-
-const iconColorMap = {
-  info: 'text-neon-cyan',
-  alert: 'text-neon-pink',
-  event: 'text-neon-purple',
-  announcement: 'text-neon-green',
+// Function to load Google Fonts dynamically
+const loadGoogleFont = (fontFamily: string) => {
+  if (!fontFamily || fontFamily === 'Inter') return; // Inter is already loaded
+  
+  const fontId = `font-${fontFamily.replace(/\s+/g, '-')}`;
+  if (document.getElementById(fontId)) return; // Already loaded
+  
+  const link = document.createElement('link');
+  link.id = fontId;
+  link.rel = 'stylesheet';
+  link.href = `https://fonts.googleapis.com/css2?family=${fontFamily.replace(/\s+/g, '+')}:wght@400;700&display=swap`;
+  document.head.appendChild(link);
 };
 
 const NoticeCarousel = () => {
@@ -63,7 +57,14 @@ const NoticeCarousel = () => {
         if (error) throw error;
         
         if (data && data.length > 0) {
-          setNotices(data as Notice[]);
+          const typedNotices = data as Notice[];
+          setNotices(typedNotices);
+          
+          // Load Google Fonts for all notices
+          typedNotices.forEach(notice => {
+            if (notice.heading_font_family) loadGoogleFont(notice.heading_font_family);
+            if (notice.message_font_family) loadGoogleFont(notice.message_font_family);
+          });
         }
       } catch (error) {
         console.error('Error fetching carousel slides:', error);
@@ -103,72 +104,83 @@ const NoticeCarousel = () => {
       >
         <CarouselContent>
           {notices.map((notice) => {
-            const Icon = iconMap[notice.type];
-            const hasContent = notice.image_url || notice.heading || notice.subheading;
+            const hasContent = notice.image_url || notice.heading;
             
-            // Don't render if no image, heading, or subheading
+            // Don't render if no image or heading
             if (!hasContent) return null;
+            
+            const headingStyle = {
+              color: notice.heading_color || '#ffffff',
+              fontFamily: notice.heading_font_family || 'Inter',
+              fontSize: notice.heading_font_size || '2xl',
+            };
+            
+            const messageStyle = {
+              color: notice.message_color || '#ffffff',
+              fontFamily: notice.message_font_family || 'Inter',
+              fontSize: notice.message_font_size || 'base',
+            };
+            
+            const CardContent = (
+              <Card
+                className="relative overflow-hidden min-h-[300px] bg-gradient-to-br from-primary/10 to-primary/5 backdrop-blur-sm border border-primary/20 transition-all duration-300 hover:scale-[1.02] hover:border-primary/40 hover:shadow-lg hover:shadow-primary/20 cursor-pointer"
+              >
+                {/* Background Image with 16:9 aspect ratio */}
+                {notice.image_url && (
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{ 
+                      backgroundImage: `url(${notice.image_url})`,
+                      aspectRatio: '16/9'
+                    }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
+                  </div>
+                )}
+                
+                {/* Content Overlay */}
+                <div className="relative z-10 p-6 flex flex-col justify-end min-h-[300px]">
+                  <div className="space-y-3">
+                    {/* Heading */}
+                    {notice.heading && (
+                      <h3 
+                        className="text-2xl md:text-3xl font-bold"
+                        style={{
+                          color: headingStyle.color,
+                          fontFamily: headingStyle.fontFamily,
+                        }}
+                      >
+                        {notice.heading}
+                      </h3>
+                    )}
+                    
+                    {/* Message */}
+                    <p 
+                      className="leading-relaxed"
+                      style={{
+                        color: messageStyle.color,
+                        fontFamily: messageStyle.fontFamily,
+                      }}
+                    >
+                      {notice.message}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            );
             
             return (
               <CarouselItem key={notice.id}>
-                <Card
-                  className={`relative overflow-hidden min-h-[300px] bg-gradient-to-r ${colorMap[notice.type]} backdrop-blur-sm border transition-all duration-300 hover:scale-[1.01]`}
-                >
-                  {/* Background Image with 16:9 aspect ratio */}
-                  {notice.image_url && (
-                    <div 
-                      className="absolute inset-0 bg-cover bg-center"
-                      style={{ 
-                        backgroundImage: `url(${notice.image_url})`,
-                        aspectRatio: '16/9'
-                      }}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
-                    </div>
-                  )}
-                  
-                  {/* Content Overlay */}
-                  <div className="relative z-10 p-6 flex flex-col justify-end min-h-[300px]">
-                    <div className="flex items-start gap-4">
-                      <div className={`flex-shrink-0 ${iconColorMap[notice.type]}`}>
-                        <Icon className="w-6 h-6" />
-                      </div>
-                      
-                      <div className="flex-1 space-y-3">
-                        {/* Heading */}
-                        {notice.heading && (
-                          <h3 className="text-2xl md:text-3xl font-bold text-white">
-                            {notice.heading}
-                          </h3>
-                        )}
-                        
-                        {/* Subheading */}
-                        {notice.subheading && (
-                          <p className="text-base md:text-lg text-white/90 font-medium">
-                            {notice.subheading}
-                          </p>
-                        )}
-                        
-                        {/* Message */}
-                        <p className="text-sm md:text-base text-white/80 leading-relaxed">
-                          {notice.message}
-                        </p>
-                        
-                        {/* Button */}
-                        {notice.button_text && notice.button_link && (
-                          <div className="pt-2">
-                            <Button
-                              onClick={() => window.open(notice.button_link, '_blank')}
-                              className="bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur-sm"
-                            >
-                              {notice.button_text}
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                {notice.button_link ? (
+                  <div 
+                    onClick={() => window.open(notice.button_link, '_blank')}
+                    className="cursor-pointer"
+                  >
+                    {CardContent}
                   </div>
-                </Card>
+                ) : (
+                  CardContent
+                )}
               </CarouselItem>
             );
           })}

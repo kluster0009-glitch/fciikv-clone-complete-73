@@ -21,12 +21,16 @@ export type Database = {
           created_at: string
           display_order: number
           heading: string | null
+          heading_color: string | null
+          heading_font_family: string | null
+          heading_font_size: string | null
           id: string
           image_url: string | null
           is_active: boolean
           message: string
-          subheading: string | null
-          type: string
+          message_color: string | null
+          message_font_family: string | null
+          message_font_size: string | null
           updated_at: string
         }
         Insert: {
@@ -35,12 +39,16 @@ export type Database = {
           created_at?: string
           display_order?: number
           heading?: string | null
+          heading_color?: string | null
+          heading_font_family?: string | null
+          heading_font_size?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
           message: string
-          subheading?: string | null
-          type: string
+          message_color?: string | null
+          message_font_family?: string | null
+          message_font_size?: string | null
           updated_at?: string
         }
         Update: {
@@ -49,12 +57,16 @@ export type Database = {
           created_at?: string
           display_order?: number
           heading?: string | null
+          heading_color?: string | null
+          heading_font_family?: string | null
+          heading_font_size?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
           message?: string
-          subheading?: string | null
-          type?: string
+          message_color?: string | null
+          message_font_family?: string | null
+          message_font_size?: string | null
           updated_at?: string
         }
         Relationships: []
