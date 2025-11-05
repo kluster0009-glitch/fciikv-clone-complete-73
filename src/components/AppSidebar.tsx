@@ -33,7 +33,6 @@ import { Button } from '@/components/ui/button';
 import logo from '@/assets/logo.svg';
 
 const navItems = [
-  { icon: Home, label: 'Home', path: '/' },
   { icon: MessageSquare, label: 'Cluster', path: '/feed' },
   { icon: HelpCircle, label: 'Q&A', path: '/qa' },
   { icon: BookOpen, label: 'Library', path: '/library' },
