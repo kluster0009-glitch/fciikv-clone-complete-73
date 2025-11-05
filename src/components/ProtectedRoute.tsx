@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { AUTH_ENABLED } from '@/config';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -7,6 +8,11 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user, loading } = useAuth();
+
+  // Skip auth check if disabled
+  if (!AUTH_ENABLED) {
+    return <>{children}</>;
+  }
 
   if (loading) {
     return (
