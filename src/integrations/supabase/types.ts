@@ -16,29 +16,44 @@ export type Database = {
     Tables: {
       carousel_slides: {
         Row: {
+          button_link: string | null
+          button_text: string | null
           created_at: string
           display_order: number
+          heading: string | null
           id: string
+          image_url: string | null
           is_active: boolean
           message: string
+          subheading: string | null
           type: string
           updated_at: string
         }
         Insert: {
+          button_link?: string | null
+          button_text?: string | null
           created_at?: string
           display_order?: number
+          heading?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean
           message: string
+          subheading?: string | null
           type: string
           updated_at?: string
         }
         Update: {
+          button_link?: string | null
+          button_text?: string | null
           created_at?: string
           display_order?: number
+          heading?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean
           message?: string
+          subheading?: string | null
           type?: string
           updated_at?: string
         }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import {
   Carousel,
   CarouselContent,
@@ -15,6 +16,11 @@ interface Notice {
   id: string;
   type: 'info' | 'alert' | 'event' | 'announcement';
   message: string;
+  image_url?: string;
+  heading?: string;
+  subheading?: string;
+  button_text?: string;
+  button_link?: string;
 }
 
 const iconMap = {
@@ -98,18 +104,69 @@ const NoticeCarousel = () => {
         <CarouselContent>
           {notices.map((notice) => {
             const Icon = iconMap[notice.type];
+            const hasContent = notice.image_url || notice.heading || notice.subheading;
+            
+            // Don't render if no image, heading, or subheading
+            if (!hasContent) return null;
+            
             return (
               <CarouselItem key={notice.id}>
                 <Card
-                  className={`p-6 min-h-[120px] bg-gradient-to-r ${colorMap[notice.type]} backdrop-blur-sm border transition-all duration-300 hover:scale-[1.01]`}
+                  className={`relative overflow-hidden min-h-[300px] bg-gradient-to-r ${colorMap[notice.type]} backdrop-blur-sm border transition-all duration-300 hover:scale-[1.01]`}
                 >
-                  <div className="flex items-center gap-4 h-full">
-                    <div className={`flex-shrink-0 ${iconColorMap[notice.type]}`}>
-                      <Icon className="w-6 h-6" />
+                  {/* Background Image with 16:9 aspect ratio */}
+                  {notice.image_url && (
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center"
+                      style={{ 
+                        backgroundImage: `url(${notice.image_url})`,
+                        aspectRatio: '16/9'
+                      }}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
                     </div>
-                    <p className="text-base md:text-lg text-foreground font-medium leading-relaxed">
-                      {notice.message}
-                    </p>
+                  )}
+                  
+                  {/* Content Overlay */}
+                  <div className="relative z-10 p-6 flex flex-col justify-end min-h-[300px]">
+                    <div className="flex items-start gap-4">
+                      <div className={`flex-shrink-0 ${iconColorMap[notice.type]}`}>
+                        <Icon className="w-6 h-6" />
+                      </div>
+                      
+                      <div className="flex-1 space-y-3">
+                        {/* Heading */}
+                        {notice.heading && (
+                          <h3 className="text-2xl md:text-3xl font-bold text-white">
+                            {notice.heading}
+                          </h3>
+                        )}
+                        
+                        {/* Subheading */}
+                        {notice.subheading && (
+                          <p className="text-base md:text-lg text-white/90 font-medium">
+                            {notice.subheading}
+                          </p>
+                        )}
+                        
+                        {/* Message */}
+                        <p className="text-sm md:text-base text-white/80 leading-relaxed">
+                          {notice.message}
+                        </p>
+                        
+                        {/* Button */}
+                        {notice.button_text && notice.button_link && (
+                          <div className="pt-2">
+                            <Button
+                              onClick={() => window.open(notice.button_link, '_blank')}
+                              className="bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur-sm"
+                            >
+                              {notice.button_text}
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </Card>
               </CarouselItem>
