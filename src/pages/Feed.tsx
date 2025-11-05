@@ -6,54 +6,55 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Search, Plus, Heart, MessageSquare, Share } from 'lucide-react';
-
 const Feed = () => {
-  const posts = [
-    {
-      id: 1,
-      author: 'Student Services',
-      date: 'Sep 12, 2024',
-      category: 'College',
-      title: 'Reminder: Financial Aid Application Deadline',
-      content: "Just a friendly reminder that the deadline for Fall semester financial aid applications is this Friday, September 13th. Don't miss out! Contact the Financial Aid Office if you have questions.",
-      likes: 24,
-      comments: 8,
-      image: true
-    },
-    {
-      id: 2,
-      author: 'UniConnect News',
-      date: 'Sep 11, 2024',
-      category: 'College',
-      title: 'Student Spotlight: Internship Success!',
-      content: "Congratulations to Mark Johnson from State University for securing a prestigious summer internship at Tech Innovations Inc.! Share your own success stories and inspire others in the community.",
-      likes: 45,
-      comments: 12,
-      image: true
-    },
-    {
-      id: 3,
-      author: 'Dr. Sarah Chen',
-      date: 'Sep 10, 2024',
-      category: 'Academic',
-      title: 'Research Opportunities in Computer Science',
-      content: "I'm looking for motivated undergraduate students to join my research team working on machine learning applications in healthcare. Great opportunity to gain research experience!",
-      likes: 67,
-      comments: 23,
-      image: false
-    }
-  ];
-
-  const trendingTopics = [
-    { name: 'Computer Science', count: 50 },
-    { name: 'Mathematics', count: 53 },
-    { name: 'Physics', count: 47 },
-    { name: 'Chemistry', count: 54 },
-    { name: 'Biology', count: 57 }
-  ];
-
-  return (
-    <div className="min-h-screen immersive-bg">
+  const posts = [{
+    id: 1,
+    author: 'Student Services',
+    date: 'Sep 12, 2024',
+    category: 'College',
+    title: 'Reminder: Financial Aid Application Deadline',
+    content: "Just a friendly reminder that the deadline for Fall semester financial aid applications is this Friday, September 13th. Don't miss out! Contact the Financial Aid Office if you have questions.",
+    likes: 24,
+    comments: 8,
+    image: true
+  }, {
+    id: 2,
+    author: 'UniConnect News',
+    date: 'Sep 11, 2024',
+    category: 'College',
+    title: 'Student Spotlight: Internship Success!',
+    content: "Congratulations to Mark Johnson from State University for securing a prestigious summer internship at Tech Innovations Inc.! Share your own success stories and inspire others in the community.",
+    likes: 45,
+    comments: 12,
+    image: true
+  }, {
+    id: 3,
+    author: 'Dr. Sarah Chen',
+    date: 'Sep 10, 2024',
+    category: 'Academic',
+    title: 'Research Opportunities in Computer Science',
+    content: "I'm looking for motivated undergraduate students to join my research team working on machine learning applications in healthcare. Great opportunity to gain research experience!",
+    likes: 67,
+    comments: 23,
+    image: false
+  }];
+  const trendingTopics = [{
+    name: 'Computer Science',
+    count: 50
+  }, {
+    name: 'Mathematics',
+    count: 53
+  }, {
+    name: 'Physics',
+    count: 47
+  }, {
+    name: 'Chemistry',
+    count: 54
+  }, {
+    name: 'Biology',
+    count: 57
+  }];
+  return <div className="min-h-screen immersive-bg">
       <div className="pt-8">
         {/* Notice Carousel */}
         <NoticeCarousel />
@@ -64,9 +65,7 @@ const Feed = () => {
         <div className="container mx-auto px-6 pt-2 pb-8">
           {/* Page Header */}
           <div className="mb-8">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-neon-purple to-neon-cyan bg-clip-text text-transparent mb-4">
-              Community Feed
-            </h1>
+            
           </div>
 
         <div className="grid lg:grid-cols-4 gap-8">
@@ -76,10 +75,7 @@ const Feed = () => {
             <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
               <div className="relative flex-1 max-w-lg">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                <Input
-                  placeholder="Search posts..."
-                  className="pl-10 bg-cyber-card/50 border-cyber-border"
-                />
+                <Input placeholder="Search posts..." className="pl-10 bg-cyber-card/50 border-cyber-border" />
               </div>
               <div className="flex items-center space-x-2">
                 <Button variant="outline" size="sm" className="bg-neon-cyan/20 text-neon-cyan border-neon-cyan/30">
@@ -99,8 +95,7 @@ const Feed = () => {
             </Card>
 
             {/* Posts */}
-            {posts.map((post) => (
-              <Card key={post.id} className="p-6 bg-cyber-card/50 backdrop-blur-sm border-cyber-border hover:border-cyber-border/60 transition-all duration-300">
+            {posts.map(post => <Card key={post.id} className="p-6 bg-cyber-card/50 backdrop-blur-sm border-cyber-border hover:border-cyber-border/60 transition-all duration-300">
                 <div className="space-y-4">
                   {/* Post Header */}
                   <div className="flex items-center justify-between">
@@ -127,11 +122,9 @@ const Feed = () => {
                     <h2 className="text-xl font-semibold text-foreground">{post.title}</h2>
                     <p className="text-muted-foreground leading-relaxed">{post.content}</p>
                     
-                    {post.image && (
-                      <div className="w-full h-48 bg-gradient-to-br from-neon-purple/20 to-neon-cyan/20 rounded-lg border border-cyber-border flex items-center justify-center">
+                    {post.image && <div className="w-full h-48 bg-gradient-to-br from-neon-purple/20 to-neon-cyan/20 rounded-lg border border-cyber-border flex items-center justify-center">
                         <span className="text-muted-foreground">📊 Image Content</span>
-                      </div>
-                    )}
+                      </div>}
                   </div>
 
                   {/* Post Actions */}
@@ -150,8 +143,7 @@ const Feed = () => {
                     </Button>
                   </div>
                 </div>
-              </Card>
-            ))}
+              </Card>)}
           </div>
 
           {/* Sidebar */}
@@ -160,14 +152,12 @@ const Feed = () => {
             <Card className="p-6 bg-cyber-card/50 backdrop-blur-sm border-cyber-border">
               <h3 className="text-lg font-semibold text-neon-cyan mb-4">Trending Topics</h3>
               <div className="space-y-3">
-                {trendingTopics.map((topic, index) => (
-                  <div key={index} className="flex items-center justify-between">
+                {trendingTopics.map((topic, index) => <div key={index} className="flex items-center justify-between">
                     <span className="text-foreground">{topic.name}</span>
                     <Badge variant="outline" className="text-neon-purple border-neon-purple/30">
                       {topic.count}
                     </Badge>
-                  </div>
-                ))}
+                  </div>)}
               </div>
             </Card>
 
@@ -193,8 +183,6 @@ const Feed = () => {
       </div>
       </div>
     </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Feed;
