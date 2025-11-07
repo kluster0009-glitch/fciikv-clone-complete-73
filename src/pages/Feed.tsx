@@ -86,14 +86,6 @@ const Feed = () => {
               </div>
             </div>
 
-            {/* Create Post */}
-            <Card className="p-6 bg-cyber-card/50 backdrop-blur-sm border-cyber-border">
-              <Button className="w-full bg-gradient-to-r from-neon-purple to-neon-cyan text-black font-semibold">
-                <Plus className="w-4 h-4 mr-2" />
-                Create Post
-              </Button>
-            </Card>
-
             {/* Posts */}
             {posts.map(post => <Card key={post.id} className="p-6 bg-cyber-card/50 backdrop-blur-sm border-cyber-border hover:border-cyber-border/60 transition-all duration-300">
                 <div className="space-y-4">

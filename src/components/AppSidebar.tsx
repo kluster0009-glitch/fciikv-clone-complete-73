@@ -14,7 +14,8 @@ import {
   User,
   Moon,
   Sun,
-  Menu
+  Menu,
+  Plus
 } from 'lucide-react';
 import {
   Sidebar,
@@ -90,6 +91,16 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
+              {/* Create Post Button */}
+              <SidebarMenuItem>
+                <Button 
+                  className={`${open ? 'w-full' : 'w-10 h-10 p-0'} bg-gradient-to-r from-neon-purple to-neon-cyan text-black font-semibold`}
+                >
+                  <Plus className="w-4 h-4" />
+                  {open && <span className="ml-2">Create Post</span>}
+                </Button>
+              </SidebarMenuItem>
+
               {navItems.map((item) => (
                 <SidebarMenuItem key={item.path}>
                   <SidebarMenuButton
