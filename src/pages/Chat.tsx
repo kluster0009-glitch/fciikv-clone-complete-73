@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, Hash, Plus, Users, Send } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Search, Hash, Plus, Users, Send, Smile } from 'lucide-react';
 
 const Chat = () => {
   const [selectedChannel, setSelectedChannel] = useState('general');
@@ -77,185 +78,210 @@ const Chat = () => {
   return (
     <div className="min-h-screen immersive-bg">
       <div className="h-screen flex">
-        {/* Sidebar */}
-        <div className="w-80 bg-cyber-darker/80 backdrop-blur-sm border-r border-cyber-border flex flex-col">
+        {/* Sidebar - Channels */}
+        <div className="w-72 md:w-80 bg-background/95 backdrop-blur-xl border-r border-border/50 flex flex-col shadow-lg">
           {/* Search */}
-          <div className="p-4 border-b border-cyber-border">
+          <div className="p-5 border-b border-border/50">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
                 placeholder="Search channels..."
-                className="pl-10 bg-cyber-card/50 border-cyber-border"
+                className="pl-10 bg-muted/50 border-border/40 rounded-lg h-10 focus-visible:ring-2 focus-visible:ring-primary/50 transition-all"
               />
             </div>
           </div>
 
-          {/* Channels */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-6">
-            {/* My College */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-neon-cyan uppercase tracking-wider flex items-center">
-                  <Hash className="w-4 h-4 mr-2" />
-                  My College
-                </h3>
-                <Button variant="ghost" size="sm" className="w-6 h-6 p-0">
-                  <Plus className="w-3 h-3" />
-                </Button>
-              </div>
-              <div className="space-y-1">
-                {channels.myCollege.map((channel) => (
-                  <div
-                    key={channel.id}
-                    onClick={() => setSelectedChannel(channel.id)}
-                    className={`
-                      flex items-center justify-between p-2 rounded-md cursor-pointer transition-colors
-                      ${selectedChannel === channel.id 
-                        ? 'bg-neon-cyan/20 text-neon-cyan' 
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
-                      }
-                    `}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <Hash className="w-4 h-4" />
-                      <span className="text-sm">{channel.name}</span>
+          {/* Channels List */}
+          <ScrollArea className="flex-1 px-3">
+            <div className="py-4 space-y-8">
+              {/* My College */}
+              <div>
+                <div className="flex items-center justify-between mb-3 px-2">
+                  <h3 className="text-xs font-semibold text-primary uppercase tracking-wider flex items-center gap-2">
+                    <Hash className="w-3.5 h-3.5" />
+                    My College
+                  </h3>
+                  <Button variant="ghost" size="sm" className="w-7 h-7 p-0 hover:bg-primary/10 hover:text-primary transition-all">
+                    <Plus className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+                <div className="space-y-0.5">
+                  {channels.myCollege.map((channel) => (
+                    <div
+                      key={channel.id}
+                      onClick={() => setSelectedChannel(channel.id)}
+                      className={`
+                        flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-200
+                        ${selectedChannel === channel.id 
+                          ? 'bg-primary/15 text-primary font-medium shadow-sm' 
+                          : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+                        }
+                      `}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Hash className="w-4 h-4 flex-shrink-0" />
+                        <span className="text-sm font-medium">{channel.name}</span>
+                      </div>
+                      <span className="text-xs bg-background/60 px-2 py-0.5 rounded-full">{channel.members}</span>
                     </div>
-                    <span className="text-xs">{channel.members}</span>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
 
-            {/* Subjects */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-neon-purple uppercase tracking-wider">
-                  Subjects
-                </h3>
-                <Button variant="ghost" size="sm" className="w-6 h-6 p-0">
-                  <Plus className="w-3 h-3" />
-                </Button>
-              </div>
-              <div className="space-y-1">
-                {channels.subjects.map((channel) => (
-                  <div
-                    key={channel.id}
-                    className="flex items-center justify-between p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/30 cursor-pointer transition-colors"
-                  >
-                    <div className="flex items-center space-x-2">
-                      {channel.type === 'code' ? <Hash className="w-4 h-4" /> : <Hash className="w-4 h-4" />}
-                      <span className="text-sm">{channel.name}</span>
+              {/* Subjects */}
+              <div>
+                <div className="flex items-center justify-between mb-3 px-2">
+                  <h3 className="text-xs font-semibold text-secondary uppercase tracking-wider flex items-center gap-2">
+                    <Hash className="w-3.5 h-3.5" />
+                    Subjects
+                  </h3>
+                  <Button variant="ghost" size="sm" className="w-7 h-7 p-0 hover:bg-secondary/10 hover:text-secondary transition-all">
+                    <Plus className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+                <div className="space-y-0.5">
+                  {channels.subjects.map((channel) => (
+                    <div
+                      key={channel.id}
+                      onClick={() => setSelectedChannel(channel.id)}
+                      className="flex items-center justify-between px-3 py-2.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 cursor-pointer transition-all duration-200"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Hash className="w-4 h-4 flex-shrink-0" />
+                        <span className="text-sm font-medium">{channel.name}</span>
+                      </div>
+                      <span className="text-xs bg-background/60 px-2 py-0.5 rounded-full">{channel.members}</span>
                     </div>
-                    <span className="text-xs">{channel.members}</span>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
 
-            {/* Global */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-neon-green uppercase tracking-wider">
-                  Global
-                </h3>
-              </div>
-              <div className="space-y-1">
-                {channels.global.map((channel) => (
-                  <div
-                    key={channel.id}
-                    className="flex items-center justify-between p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/30 cursor-pointer transition-colors"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <Hash className="w-4 h-4" />
-                      <span className="text-sm">{channel.name}</span>
+              {/* Global */}
+              <div>
+                <div className="flex items-center justify-between mb-3 px-2">
+                  <h3 className="text-xs font-semibold text-accent uppercase tracking-wider flex items-center gap-2">
+                    <Hash className="w-3.5 h-3.5" />
+                    Global
+                  </h3>
+                </div>
+                <div className="space-y-0.5">
+                  {channels.global.map((channel) => (
+                    <div
+                      key={channel.id}
+                      onClick={() => setSelectedChannel(channel.id)}
+                      className="flex items-center justify-between px-3 py-2.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 cursor-pointer transition-all duration-200"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Hash className="w-4 h-4 flex-shrink-0" />
+                        <span className="text-sm font-medium">{channel.name}</span>
+                      </div>
+                      <span className="text-xs bg-background/60 px-2 py-0.5 rounded-full">{channel.members}</span>
                     </div>
-                    <span className="text-xs">{channel.members}</span>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          </ScrollArea>
         </div>
 
         {/* Chat Area */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col bg-background/50">
           {/* Chat Header */}
-          <div className="h-16 bg-cyber-darker/80 backdrop-blur-sm border-b border-cyber-border flex items-center justify-between px-6">
-            <div className="flex items-center space-x-3">
-              <Hash className="w-5 h-5 text-neon-cyan" />
+          <div className="h-16 bg-background/95 backdrop-blur-xl border-b border-border/50 flex items-center justify-between px-6 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Hash className="w-5 h-5 text-primary" />
+              </div>
               <div>
-                <h2 className="font-semibold text-foreground">{currentChannel.name}</h2>
-                <p className="text-sm text-muted-foreground">
-                  General college discussions • {currentChannel.members} members
+                <h2 className="font-semibold text-foreground text-base">{currentChannel.name}</h2>
+                <p className="text-xs text-muted-foreground">
+                  {currentChannel.members} members online
                 </p>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <Badge className="bg-neon-cyan/20 text-neon-cyan border-neon-cyan/30">
-                {currentChannel.members}
-              </Badge>
-            </div>
+            <Badge className="bg-primary/10 text-primary border-primary/20 px-3 py-1 font-medium">
+              <Users className="w-3.5 h-3.5 mr-1.5" />
+              {currentChannel.members}
+            </Badge>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-4">
-            {messages.map((message) => (
-              <div key={message.id} className="flex items-start space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-neon-purple to-neon-cyan rounded-full flex items-center justify-center">
-                  <span className="text-black font-semibold text-sm">{message.initials}</span>
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <span className="font-semibold text-foreground">{message.user}</span>
-                    <span className="text-xs text-muted-foreground">{message.time}</span>
+          <ScrollArea className="flex-1">
+            <div className="p-6 space-y-6">
+              {messages.map((message) => (
+                <div key={message.id} className="flex items-start gap-3.5 group hover:bg-muted/30 -mx-3 px-3 py-2 rounded-lg transition-colors">
+                  <div className="w-10 h-10 bg-gradient-to-br from-primary via-secondary to-accent rounded-full flex items-center justify-center shadow-md flex-shrink-0">
+                    <span className="text-primary-foreground font-semibold text-sm">{message.initials}</span>
                   </div>
-                  <p className="text-muted-foreground">{message.message}</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-baseline gap-2 mb-1">
+                      <span className="font-semibold text-foreground text-sm">{message.user}</span>
+                      <span className="text-xs text-muted-foreground">{message.time}</span>
+                    </div>
+                    <p className="text-sm text-foreground/90 leading-relaxed">{message.message}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </ScrollArea>
 
           {/* Message Input */}
-          <div className="p-4 border-t border-cyber-border">
-            <div className="flex items-center space-x-3">
+          <div className="p-4 border-t border-border/50 bg-background/95 backdrop-blur-xl">
+            <div className="flex items-end gap-3 max-w-5xl mx-auto">
               <div className="flex-1 relative">
                 <Input
                   placeholder={`Message #${currentChannel.name.toLowerCase()}`}
-                  className="pr-12 bg-cyber-card/50 border-cyber-border"
+                  className="pr-24 pl-4 py-6 bg-muted/50 border-border/40 rounded-xl focus-visible:ring-2 focus-visible:ring-primary/50 transition-all text-sm resize-none"
                 />
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-neon-cyan hover:text-neon-cyan/80"
-                >
-                  <Send className="w-4 h-4" />
-                </Button>
+                <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="w-9 h-9 p-0 text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-all rounded-lg"
+                  >
+                    <Smile className="w-4 h-4" />
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    className="w-9 h-9 p-0 bg-primary hover:bg-primary/90 text-primary-foreground transition-all rounded-lg shadow-sm"
+                  >
+                    <Send className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Online Users */}
-        <div className="w-64 bg-cyber-darker/80 backdrop-blur-sm border-l border-cyber-border p-4">
-          <h3 className="text-sm font-semibold text-neon-green mb-4 uppercase tracking-wider">
-            Online Now ({onlineUsers.length})
-          </h3>
-          <div className="space-y-2">
-            {onlineUsers.map((user, index) => (
-              <div key={index} className="flex items-center space-x-3 p-2 rounded-md hover:bg-muted/30 cursor-pointer transition-colors">
-                <div className="relative">
-                  <div className="w-8 h-8 bg-gradient-to-br from-neon-purple to-neon-cyan rounded-full flex items-center justify-center">
-                    <span className="text-black font-semibold text-xs">{user.initials}</span>
-                  </div>
-                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-neon-green rounded-full border-2 border-cyber-darker"></div>
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm text-foreground">{user.name}</p>
-                  <p className="text-xs text-neon-green">Online</p>
-                </div>
-              </div>
-            ))}
+        <div className="w-60 md:w-72 bg-background/95 backdrop-blur-xl border-l border-border/50 flex flex-col shadow-lg">
+          <div className="p-5 border-b border-border/50">
+            <h3 className="text-xs font-semibold text-accent uppercase tracking-wider flex items-center gap-2">
+              <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
+              Online ({onlineUsers.length})
+            </h3>
           </div>
+          <ScrollArea className="flex-1">
+            <div className="p-3 space-y-1">
+              {onlineUsers.map((user, index) => (
+                <div key={index} className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/60 cursor-pointer transition-all duration-200 group">
+                  <div className="relative flex-shrink-0">
+                    <div className="w-9 h-9 bg-gradient-to-br from-primary via-secondary to-accent rounded-full flex items-center justify-center shadow-md">
+                      <span className="text-primary-foreground font-semibold text-xs">{user.initials}</span>
+                    </div>
+                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-accent rounded-full border-2 border-background shadow-sm"></div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">{user.name}</p>
+                    <p className="text-xs text-accent flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-accent rounded-full"></span>
+                      Online
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
         </div>
       </div>
     </div>
