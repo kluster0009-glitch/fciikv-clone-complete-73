@@ -1,109 +1,440 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Search, Users, Send, Smile, MessageCircle, Megaphone, Calendar, BookOpen, Code, TrendingUp, Briefcase, User, ChevronDown, ChevronUp, Globe, Menu, X } from 'lucide-react';
+import {
+  Search,
+  Send,
+  Smile,
+  MessageCircle,
+  Megaphone,
+  Calendar,
+  BookOpen,
+  Code,
+  TrendingUp,
+  Briefcase,
+  ChevronDown,
+  ChevronUp,
+  Globe,
+  Menu,
+  X,
+  Users,
+} from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { BACKEND_URL } from "@/config";
+
+type ChannelType = 'college' | 'subject' | 'global' | 'study_group';
+type ChannelScope = 'college' | 'global';
+
+type Channel = {
+  id: number;
+  name: string;
+  description: string | null;
+  type: ChannelType;
+  scope: ChannelScope;
+  subject_name: string | null;
+  organization_id: number | null;
+};
+
+type MessageRow = {
+  id: number;
+  channel_id: number;
+  sender_id: string;
+  content: string;
+  created_at: string;
+  deleted: boolean | null;
+};
+
+type MessageWithSender = MessageRow & {
+  sender_full_name?: string | null;
+};
+
+type SectionKey = 'myCollege' | 'subjects' | 'global';
+
 
 const Chat = () => {
-  const [selectedChannel, setSelectedChannel] = useState('general');
+  const [selectedChannelId, setSelectedChannelId] = useState<number | null>(
+    null
+  );
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [expandedSections, setExpandedSections] = useState({
-    personalChats: true,
+
+  const [expandedSections, setExpandedSections] = useState<
+    Record<SectionKey, boolean>
+  >({
     myCollege: true,
     subjects: true,
-    global: true
+    global: true,
   });
 
-  const toggleSection = (section: keyof typeof expandedSections) => {
-    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
+  const [channelsState, setChannelsState] = useState<{
+    myCollege: Channel[];
+    subjects: Channel[];
+    global: Channel[];
+  }>({
+    myCollege: [],
+    subjects: [],
+    global: [],
+  });
+
+  const [messages, setMessages] = useState<MessageWithSender[]>([]);
+  const [loadingChannels, setLoadingChannels] = useState(false);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [newMessage, setNewMessage] = useState('');
+  const [organizationName, setOrganizationName] = useState<string | null>(null);
+  const [memberCount, setMemberCount] = useState<number | null>(null);
+
+
+  const toggleSection = (section: SectionKey) => {
+    setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
-  const personalChats = [
-    { id: 'chat-alex', name: 'Alex Chen', members: 2, icon: User, status: 'online' },
-    { id: 'chat-sarah', name: 'Sarah Johnson', members: 2, icon: User, status: 'online' },
-    { id: 'chat-mike', name: 'Mike Rodriguez', members: 2, icon: User, status: 'offline' }
-  ];
-
-  const channels = {
-    myCollege: [
-      { id: 'general', name: 'General', members: 1234, icon: MessageCircle },
-      { id: 'announcements', name: 'Announcements', members: 1234, icon: Megaphone },
-      { id: 'events', name: 'Events', members: 567, icon: Calendar },
-      { id: 'study-groups', name: 'Study Groups', members: 890, icon: BookOpen }
+  const allChannels = useMemo(
+    () => [
+      ...channelsState.myCollege,
+      ...channelsState.subjects,
+      ...channelsState.global,
     ],
-    subjects: [
-      { id: 'computer-science', name: 'Computer Science', members: 456, icon: Code },
-      { id: 'mathematics', name: 'Mathematics', members: 234, icon: BookOpen },
-      { id: 'physics', name: 'Physics', members: 189, icon: BookOpen },
-      { id: 'chemistry', name: 'Chemistry', members: 167, icon: BookOpen },
-      { id: 'biology', name: 'Biology', members: 145, icon: BookOpen }
-    ],
-    global: [
-      { id: 'global-general', name: 'Global General', members: 5678, icon: Globe },
-      { id: 'career-advice', name: 'Career Advice', members: 2345, icon: Briefcase },
-      { id: 'tech-trends', name: 'Tech Trends', members: 1890, icon: TrendingUp }
-    ]
+    [channelsState]
+  );
+
+  const currentChannel = useMemo(
+    () =>
+      allChannels.find((c) => c.id === selectedChannelId) ||
+      allChannels[0] ||
+      null,
+    [allChannels, selectedChannelId]
+  );
+
+  const getChannelIcon = (channel: Channel | null) => {
+    if (!channel) return MessageCircle;
+    if (channel.type === 'subject') {
+      if (channel.subject_name?.toLowerCase().includes('computer')) return Code;
+      if (channel.subject_name?.toLowerCase().includes('math')) return BookOpen;
+      return BookOpen;
+    }
+    if (channel.type === 'college') return MessageCircle;
+    if (channel.type === 'study_group') return Users;
+    if (channel.type === 'global') return Globe;
+    return MessageCircle;
   };
 
-  const messages = [
-    {
-      id: 1,
-      user: 'Alex Chen',
-      initials: 'AC',
-      time: '2:30 PM',
-      message: 'Hey everyone! Just finished the data structures assignment. Anyone want to review solutions together?',
-      status: 'online'
-    },
-    {
-      id: 2,
-      user: 'Sarah Johnson',
-      initials: 'SJ',
-      time: '2:32 PM',
-      message: 'That sounds great! I had some trouble with the binary tree implementation.',
-      status: 'online'
-    },
-    {
-      id: 3,
-      user: 'Mike Rodriguez',
-      initials: 'MR',
-      time: '2:35 PM',
-      message: 'Count me in! I can share my approach to the graph algorithms part.',
-      status: 'online'
-    },
-    {
-      id: 4,
-      user: 'Emma Wilson',
-      initials: 'EW',
-      time: '2:38 PM',
-      message: 'Perfect timing! I was just about to ask for help with the complexity analysis.',
-      status: 'online'
-    }
-  ];
-
-  const onlineUsers = [
-    { name: 'Alex Chen', initials: 'AC', status: 'online' },
-    { name: 'Sarah Johnson', initials: 'SJ', status: 'online' },
-    { name: 'Mike Rodriguez', initials: 'MR', status: 'online' },
-    { name: 'Emma Wilson', initials: 'EW', status: 'online' },
-    { name: 'David Kim', initials: 'DK', status: 'online' },
-    { name: 'Lisa Zhang', initials: 'LZ', status: 'online' }
-  ];
-
-  const allChannels = [...personalChats, ...channels.myCollege, ...channels.subjects, ...channels.global];
-  const currentChannel = allChannels.find(c => c.id === selectedChannel) || channels.myCollege[0];
-
-  const handleChannelSelect = (channelId: string) => {
-    setSelectedChannel(channelId);
-    setSidebarOpen(false);
+  const getChannelSubtitle = (channel: Channel | null) => {
+    if (!channel) return '';
+    if (channel.type === 'subject') return 'Subject channel';
+    if (channel.type === 'study_group') return 'Study group';
+    if (channel.type === 'college') return 'College channel';
+    if (channel.type === 'global') return 'Global community channel';
+    return '';
   };
 
-  const handleOnlineUserClick = (userName: string) => {
-    const existingChat = personalChats.find(chat => chat.name === userName);
-    if (existingChat) {
-      setSelectedChannel(existingChat.id);
+  const getInitials = (name?: string | null) => {
+    if (!name) return '?';
+    const parts = name.trim().split(' ');
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  };
+
+  // --- Fetch Channel member count ---
+  useEffect(() => {
+    if (!currentChannel) {
+      setMemberCount(null);
+      return;
     }
+
+    const fetchMemberCount = async () => {
+      const { count, error } = await supabase
+        .from('channel_members')
+        .select('id', { count: 'exact', head: true })
+        .eq('channel_id', currentChannel.id);
+
+      if (error) {
+        console.error('Error fetching member count:', error);
+        setMemberCount(null);
+        return;
+      }
+
+      setMemberCount(count ?? 0);
+    };
+
+    fetchMemberCount();
+  }, [currentChannel?.id]);
+
+  // --- Fetch Channels ---
+  useEffect(() => {
+    const fetchChannels = async () => {
+      setLoadingChannels(true);
+      try {
+        // 1) Get current user's organization_id from profiles
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        let organizationId: number | null = null;
+
+        if (session?.user) {
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('organization_id')
+            .eq('id', session.user.id)
+            .maybeSingle();
+
+          if (!profileError && profile && profile.organization_id) {
+            organizationId = profile.organization_id as number;
+
+            // 2) Use organization_id to fetch organization_name from email_domains
+            const { data: orgRow, error: orgError } = await supabase
+              .from('email_domains')
+              .select('organization_name')
+              .eq('id', organizationId)
+              .maybeSingle();
+
+            if (!orgError && orgRow?.organization_name) {
+              setOrganizationName(orgRow.organization_name as string);
+            }
+          }
+        }
+
+        // 2) Fetch all channels (we'll filter client-side)
+        const { data, error } = await supabase
+          .from('channels')
+          .select(
+            'id, name, description, type, scope, subject_name, organization_id'
+          )
+          .order('name', { ascending: true });
+
+        if (error) {
+          console.error('Error fetching channels:', error);
+          return;
+        }
+
+        const all = (data || []) as Channel[];
+
+        // 3) Only my college's channels (scope=college AND org_id matches)
+        const myCollege = all.filter((c) => {
+          if (c.scope !== 'college') return false;
+          if (!organizationId) return false; // no org -> no college-specific channels
+          return c.organization_id === organizationId;
+        });
+
+        // 4) Only my college's subject channels
+        const subjects = all.filter((c) => {
+          if (c.type !== 'subject') return false;
+          if (!organizationId) return false;
+          return c.organization_id === organizationId;
+        });
+
+        // 5) Global channels are shared across colleges
+        const global = all.filter(
+          (c) => c.scope === 'global' || c.type === 'global'
+        );
+
+        setChannelsState({
+          myCollege,
+          subjects,
+          global,
+        });
+
+        // 6) Set default selected channel
+        if (!selectedChannelId) {
+          const firstChannel = myCollege[0] || subjects[0] || global[0] || null;
+          if (firstChannel) {
+            setSelectedChannelId(firstChannel.id);
+          }
+        }
+      } finally {
+        setLoadingChannels(false);
+      }
+    };
+
+    fetchChannels();
+  }, [selectedChannelId]);
+
+
+  // --- Load Messages for a Channel (with sender names) ---
+  const loadMessages = useCallback(async (channelId: number) => {
+    setLoadingMessages(true);
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('id, channel_id, sender_id, content, created_at, deleted')
+        .eq('channel_id', channelId)
+        .eq('deleted', false)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching messages:', error);
+        return;
+      }
+
+      const rows = (data || []) as MessageRow[];
+
+      // Collect unique sender IDs for profiles lookup
+      const senderIds = Array.from(
+        new Set(rows.map((m) => m.sender_id).filter(Boolean))
+      );
+
+      let profilesMap: Record<string, string> = {};
+      if (senderIds.length > 0) {
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, full_name')
+          .in('id', senderIds);
+
+        if (!profilesError && profiles) {
+          profilesMap = (profiles as any[]).reduce(
+            (acc, p) => ({
+              ...acc,
+              [p.id]: p.full_name,
+            }),
+            {}
+          );
+        }
+      }
+
+      const enriched: MessageWithSender[] = rows.map((m) => ({
+        ...m,
+        sender_full_name: profilesMap[m.sender_id],
+      }));
+
+      setMessages(enriched);
+    } finally {
+      setLoadingMessages(false);
+    }
+  }, []);
+
+  // Load messages whenever channel changes
+  useEffect(() => {
+    if (!selectedChannelId) return;
+    loadMessages(selectedChannelId);
+  }, [selectedChannelId, loadMessages]);
+
+  // --- Realtime subscription per channel ---
+  useEffect(() => {
+    if (!selectedChannelId) return;
+
+    const channel = supabase
+      .channel(`messages_channel_${selectedChannelId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `channel_id=eq.${selectedChannelId}`,
+        },
+        () => {
+          // For simplicity & correctness: reload messages whenever a new one arrives
+          loadMessages(selectedChannelId);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedChannelId, loadMessages]);
+
+  // Join channel via backend (Flask)
+  const joinChannel = useCallback(async (channelId: number) => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const token = session?.access_token;
+      if (!token) {
+        console.warn('No auth token found while trying to join channel');
+        return;
+      }
+
+      await fetch(`${BACKEND_URL}/channels/${channelId}/join`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+    } catch (err) {
+      console.error('Error joining channel:', err);
+    }
+  }, []);
+
+  const handleChannelSelect = (channel: Channel) => {
+    setSelectedChannelId(channel.id);
     setSidebarOpen(false);
+    // fire & forget; if user already a member, backend does nothing
+    joinChannel(channel.id);
+  };
+
+  const handleSendMessage = async () => {
+    if (!currentChannel || !newMessage.trim()) return;
+    setSending(true);
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const token = session?.access_token;
+      if (!token) {
+        console.warn('No auth token, cannot send message');
+        setSending(false);
+        return;
+      }
+
+      await fetch(`${BACKEND_URL}/channels/${currentChannel.id}/messages`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content: newMessage }),
+      });
+
+      setNewMessage('');
+      // Realtime will reload messages; no need to manually append
+    } catch (err) {
+      console.error('Error sending message:', err);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleInputKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (
+    e
+  ) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (!sending) handleSendMessage();
+    }
+  };
+
+  const ChannelListItem: React.FC<{
+    channel: Channel;
+    isSelected: boolean;
+    section: SectionKey;
+  }> = ({ channel, isSelected }) => {
+    const Icon = getChannelIcon(channel);
+    return (
+      <div
+        onClick={() => handleChannelSelect(channel)}
+        className={`
+          flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-200
+          ${isSelected
+            ? 'bg-primary/15 text-primary font-medium shadow-sm'
+            : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+          }
+        `}
+      >
+        <div className="flex items-center gap-2.5">
+          <Icon className="w-4 h-4 flex-shrink-0" />
+          <span className="text-sm font-medium">
+            {channel.name || channel.subject_name || 'Untitled'}
+          </span>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -111,19 +442,21 @@ const Chat = () => {
       <div className="h-screen flex relative">
         {/* Mobile Overlay */}
         {sidebarOpen && (
-          <div 
+          <div
             className="fixed inset-0 bg-black/50 z-40 lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         )}
 
         {/* Sidebar - Channels */}
-        <div className={`
+        <div
+          className={`
           fixed lg:relative inset-y-0 left-0 z-50 
           w-72 md:w-80 bg-background/95 backdrop-blur-xl border-r border-border/50 
           flex flex-col shadow-lg transition-transform duration-300 ease-in-out
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-        `}>
+        `}
+        >
           {/* Header with Close Button */}
           <div className="p-5 border-b border-border/50 flex items-center justify-between lg:block">
             <div className="relative flex-1">
@@ -146,81 +479,6 @@ const Chat = () => {
           {/* Channels List */}
           <ScrollArea className="flex-1 px-3">
             <div className="py-4 space-y-6">
-              {/* Personal Chats */}
-              <div>
-                <button
-                  onClick={() => toggleSection('personalChats')}
-                  className="w-full flex items-center justify-between mb-3 px-2 hover:bg-muted/40 rounded-lg transition-colors group"
-                >
-                  <h3 className="text-xs font-semibold text-primary uppercase tracking-wider flex items-center gap-2">
-                    <User className="w-3.5 h-3.5" />
-                    Personal Chats
-                  </h3>
-                  {expandedSections.personalChats ? (
-                    <ChevronDown className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
-                  ) : (
-                    <ChevronUp className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
-                  )}
-                </button>
-                {expandedSections.personalChats && (
-                  <div className="space-y-3">
-                    {/* Online Users Row */}
-                    <div className="px-2">
-                      <p className="text-[10px] font-semibold text-accent uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                        <div className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse"></div>
-                        Online Now ({onlineUsers.length})
-                      </p>
-                      <div className="overflow-x-auto">
-                        <div className="flex gap-2 pb-2 min-w-max">
-                          {onlineUsers.map((user, index) => (
-                            <div
-                              key={index}
-                              onClick={() => handleOnlineUserClick(user.name)}
-                              className="flex flex-col items-center gap-1 cursor-pointer group flex-shrink-0"
-                            >
-                              <div className="relative">
-                                <div className="w-12 h-12 bg-gradient-to-br from-primary via-secondary to-accent rounded-full flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
-                                  <span className="text-primary-foreground font-semibold text-xs">{user.initials}</span>
-                                </div>
-                                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-accent rounded-full border-2 border-background shadow-sm"></div>
-                              </div>
-                              <span className="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors max-w-[48px] truncate">
-                                {user.name.split(' ')[0]}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Personal Chats List */}
-                    <div className="space-y-0.5">
-                      {personalChats.map((chat) => (
-                        <div
-                          key={chat.id}
-                          onClick={() => handleChannelSelect(chat.id)}
-                          className={`
-                            flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-200
-                            ${selectedChannel === chat.id 
-                              ? 'bg-primary/15 text-primary font-medium shadow-sm' 
-                              : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
-                            }
-                          `}
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <chat.icon className="w-4 h-4 flex-shrink-0" />
-                            <span className="text-sm font-medium">{chat.name}</span>
-                            {chat.status === 'online' && (
-                              <div className="w-2 h-2 bg-accent rounded-full"></div>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
               {/* My College */}
               <div>
                 <button
@@ -229,7 +487,7 @@ const Chat = () => {
                 >
                   <h3 className="text-xs font-semibold text-primary uppercase tracking-wider flex items-center gap-2">
                     <MessageCircle className="w-3.5 h-3.5" />
-                    My College
+                    My College ({organizationName || '...'})
                   </h3>
                   {expandedSections.myCollege ? (
                     <ChevronDown className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
@@ -239,25 +497,19 @@ const Chat = () => {
                 </button>
                 {expandedSections.myCollege && (
                   <div className="space-y-0.5">
-                    {channels.myCollege.map((channel) => (
-                      <div
+                    {channelsState.myCollege.map((channel) => (
+                      <ChannelListItem
                         key={channel.id}
-                        onClick={() => handleChannelSelect(channel.id)}
-                        className={`
-                          flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-200
-                          ${selectedChannel === channel.id 
-                            ? 'bg-primary/15 text-primary font-medium shadow-sm' 
-                            : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
-                          }
-                        `}
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <channel.icon className="w-4 h-4 flex-shrink-0" />
-                          <span className="text-sm font-medium">{channel.name}</span>
-                        </div>
-                        <span className="text-xs bg-background/60 px-2 py-0.5 rounded-full">{channel.members}</span>
-                      </div>
+                        channel={channel}
+                        isSelected={currentChannel?.id === channel.id}
+                        section="myCollege"
+                      />
                     ))}
+                    {channelsState.myCollege.length === 0 && !loadingChannels && (
+                      <p className="text-[11px] text-muted-foreground px-3">
+                        No college channels available yet.
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
@@ -280,25 +532,19 @@ const Chat = () => {
                 </button>
                 {expandedSections.subjects && (
                   <div className="space-y-0.5">
-                    {channels.subjects.map((channel) => (
-                      <div
+                    {channelsState.subjects.map((channel) => (
+                      <ChannelListItem
                         key={channel.id}
-                        onClick={() => handleChannelSelect(channel.id)}
-                        className={`
-                          flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-200
-                          ${selectedChannel === channel.id 
-                            ? 'bg-secondary/15 text-secondary font-medium shadow-sm' 
-                            : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
-                          }
-                        `}
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <channel.icon className="w-4 h-4 flex-shrink-0" />
-                          <span className="text-sm font-medium">{channel.name}</span>
-                        </div>
-                        <span className="text-xs bg-background/60 px-2 py-0.5 rounded-full">{channel.members}</span>
-                      </div>
+                        channel={channel}
+                        isSelected={currentChannel?.id === channel.id}
+                        section="subjects"
+                      />
                     ))}
+                    {channelsState.subjects.length === 0 && !loadingChannels && (
+                      <p className="text-[11px] text-muted-foreground px-3">
+                        No subject channels yet.
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
@@ -321,25 +567,19 @@ const Chat = () => {
                 </button>
                 {expandedSections.global && (
                   <div className="space-y-0.5">
-                    {channels.global.map((channel) => (
-                      <div
+                    {channelsState.global.map((channel) => (
+                      <ChannelListItem
                         key={channel.id}
-                        onClick={() => handleChannelSelect(channel.id)}
-                        className={`
-                          flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-200
-                          ${selectedChannel === channel.id 
-                            ? 'bg-accent/15 text-accent font-medium shadow-sm' 
-                            : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
-                          }
-                        `}
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <channel.icon className="w-4 h-4 flex-shrink-0" />
-                          <span className="text-sm font-medium">{channel.name}</span>
-                        </div>
-                        <span className="text-xs bg-background/60 px-2 py-0.5 rounded-full">{channel.members}</span>
-                      </div>
+                        channel={channel}
+                        isSelected={currentChannel?.id === channel.id}
+                        section="global"
+                      />
                     ))}
+                    {channelsState.global.length === 0 && !loadingChannels && (
+                      <p className="text-[11px] text-muted-foreground px-3">
+                        No global channels yet.
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
@@ -361,19 +601,33 @@ const Chat = () => {
                 <Menu className="w-5 h-5" />
               </Button>
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                {currentChannel.icon && <currentChannel.icon className="w-5 h-5 text-primary" />}
+                {currentChannel && (
+                  (() => {
+                    const Icon = getChannelIcon(currentChannel);
+                    return <Icon className="w-5 h-5 text-primary" />;
+                  })()
+                )}
               </div>
+
               <div>
-                <h2 className="font-semibold text-foreground text-base">{currentChannel.name}</h2>
+                <h2 className="font-semibold text-foreground text-base">
+                  {currentChannel
+                    ? currentChannel.name ||
+                    currentChannel.subject_name ||
+                    'Channel'
+                    : 'Select a channel'}
+                </h2>
                 <p className="text-xs text-muted-foreground">
-                  {currentChannel.members === 2 ? 'Direct message' : `${currentChannel.members} members online`}
+                  {currentChannel
+                    ? getChannelSubtitle(currentChannel)
+                    : 'Choose a channel from the sidebar to start chatting.'}
                 </p>
               </div>
             </div>
-            {currentChannel.members !== 2 && (
+            {currentChannel && (
               <Badge className="bg-primary/10 text-primary border-primary/20 px-3 py-1 font-medium">
                 <Users className="w-3.5 h-3.5 mr-1.5" />
-                {currentChannel.members}
+                {memberCount !== null ? `${memberCount} members` : '...'}
               </Badge>
             )}
           </div>
@@ -381,20 +635,55 @@ const Chat = () => {
           {/* Messages */}
           <ScrollArea className="flex-1">
             <div className="p-4 md:p-6 space-y-4 md:space-y-6">
-              {messages.map((message) => (
-                <div key={message.id} className="flex items-start gap-2.5 md:gap-3.5 group hover:bg-muted/30 -mx-2 md:-mx-3 px-2 md:px-3 py-2 rounded-lg transition-colors">
-                  <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary via-secondary to-accent rounded-full flex items-center justify-center shadow-md flex-shrink-0">
-                    <span className="text-primary-foreground font-semibold text-xs md:text-sm">{message.initials}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-baseline gap-2 mb-0.5 md:mb-1">
-                      <span className="font-semibold text-foreground text-xs md:text-sm">{message.user}</span>
-                      <span className="text-[10px] md:text-xs text-muted-foreground">{message.time}</span>
+              {loadingMessages && (
+                <p className="text-xs text-muted-foreground text-center">
+                  Loading messages...
+                </p>
+              )}
+              {!loadingMessages && messages.length === 0 && currentChannel && (
+                <p className="text-xs text-muted-foreground text-center">
+                  No messages yet. Say hi 👋
+                </p>
+              )}
+              {!currentChannel && !loadingMessages && (
+                <p className="text-xs text-muted-foreground text-center">
+                  Select a channel to view messages.
+                </p>
+              )}
+              {messages.map((message) => {
+                const time = new Date(message.created_at).toLocaleTimeString(
+                  [],
+                  { hour: '2-digit', minute: '2-digit' }
+                );
+                const displayName =
+                  message.sender_full_name || 'Member';
+                const initials = getInitials(displayName);
+                return (
+                  <div
+                    key={message.id}
+                    className="flex items-start gap-2.5 md:gap-3.5 group hover:bg-muted/30 -mx-2 md:-mx-3 px-2 md:px-3 py-2 rounded-lg transition-colors"
+                  >
+                    <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary via-secondary to-accent rounded-full flex items-center justify-center shadow-md flex-shrink-0">
+                      <span className="text-primary-foreground font-semibold text-xs md:text-sm">
+                        {initials}
+                      </span>
                     </div>
-                    <p className="text-xs md:text-sm text-foreground/90 leading-relaxed">{message.message}</p>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-baseline gap-2 mb-0.5 md:mb-1">
+                        <span className="font-semibold text-foreground text-xs md:text-sm">
+                          {displayName}
+                        </span>
+                        <span className="text-[10px] md:text-xs text-muted-foreground">
+                          {time}
+                        </span>
+                      </div>
+                      <p className="text-xs md:text-sm text-foreground/90 leading-relaxed">
+                        {message.content}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </ScrollArea>
 
@@ -403,20 +692,31 @@ const Chat = () => {
             <div className="flex items-end gap-2 md:gap-3 max-w-5xl mx-auto">
               <div className="flex-1 relative">
                 <Input
-                  placeholder={`Message ${currentChannel.name}`}
-                  className="pr-20 md:pr-24 pl-3 md:pl-4 py-5 md:py-6 bg-muted/50 border-border/40 rounded-xl focus-visible:ring-2 focus-visible:ring-primary/50 transition-all text-xs md:text-sm resize-none"
+                  placeholder={
+                    currentChannel
+                      ? `Message ${currentChannel.name}`
+                      : 'Select a channel to start chatting...'
+                  }
+                  disabled={!currentChannel || sending}
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyDown={handleInputKeyDown}
+                  className="pr-20 md:pr-24 pl-3 md:pl-4 py-5 md:py-6 bg-muted/50 border-border/40 rounded-xl focus-visible:ring-2 focus-visible:ring-primary/50 transition-all text-xs md:text-sm"
                 />
                 <div className="absolute right-1.5 md:right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-0.5 md:gap-1">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     className="w-8 h-8 md:w-9 md:h-9 p-0 text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-all rounded-lg"
+                    disabled={!currentChannel}
                   >
                     <Smile className="w-3.5 h-3.5 md:w-4 md:h-4" />
                   </Button>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     className="w-8 h-8 md:w-9 md:h-9 p-0 bg-primary hover:bg-primary/90 text-primary-foreground transition-all rounded-lg shadow-sm"
+                    disabled={!currentChannel || sending || !newMessage.trim()}
+                    onClick={handleSendMessage}
                   >
                     <Send className="w-3.5 h-3.5 md:w-4 md:h-4" />
                   </Button>
