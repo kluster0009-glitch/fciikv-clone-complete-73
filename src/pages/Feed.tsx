@@ -1,6 +1,5 @@
 import React from 'react';
 import NoticeCarousel from '@/components/NoticeCarousel';
-import { FloatingMessagesButton } from '@/components/FloatingMessagesButton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -58,9 +57,6 @@ const Feed = () => {
       <div className="pt-8">
         {/* Notice Carousel */}
         <NoticeCarousel />
-        
-        {/* Floating Messages Button */}
-        <FloatingMessagesButton />
         
         <div className="container mx-auto px-6 pb-8">
           {/* Page Header */}

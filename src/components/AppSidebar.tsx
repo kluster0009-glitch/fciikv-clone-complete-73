@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Home, 
   MessageSquare, 
+  Send,
   HelpCircle, 
   BookOpen, 
   GraduationCap, 
@@ -35,6 +36,7 @@ import logo from '@/assets/logo.svg';
 
 const navItems = [
   { icon: MessageSquare, label: 'Cluster', path: '/feed' },
+  { icon: Send, label: 'Chat', path: '/chat' },
   { icon: HelpCircle, label: 'Q&A', path: '/qa' },
   { icon: BookOpen, label: 'Library', path: '/library' },
   { icon: GraduationCap, label: 'Professor', path: '/professor' },
