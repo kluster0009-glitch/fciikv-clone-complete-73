@@ -3,6 +3,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { AUTH_ENABLED } from '@/config';
 import { OnboardingModal } from '@/components/OnboardingModal';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   user: User | null;
@@ -26,6 +27,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!AUTH_ENABLED) {
@@ -92,6 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // In dev mode, we just clear the user state
       setUser(null);
     }
+    navigate("/", { replace: true });
   };
 
   const value = {
