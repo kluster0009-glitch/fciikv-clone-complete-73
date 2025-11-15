@@ -4,16 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
+  Code,
   Search,
   Send,
   Smile,
   MessageCircle,
-  Megaphone,
-  Calendar,
   BookOpen,
-  Code,
-  TrendingUp,
-  Briefcase,
   ChevronDown,
   ChevronUp,
   Globe,
@@ -22,7 +18,8 @@ import {
   Users,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { BACKEND_URL } from "@/config";
+import { BACKEND_URL } from '@/config';
+import { useAuth } from '@/contexts/AuthContext';
 
 type ChannelType = 'college' | 'subject' | 'global' | 'study_group';
 type ChannelScope = 'college' | 'global';
@@ -52,8 +49,9 @@ type MessageWithSender = MessageRow & {
 
 type SectionKey = 'myCollege' | 'subjects' | 'global';
 
-
 const Chat = () => {
+  const { user, session } = useAuth(); // ✅ use auth context
+
   const [selectedChannelId, setSelectedChannelId] = useState<number | null>(
     null
   );
@@ -84,7 +82,7 @@ const Chat = () => {
   const [newMessage, setNewMessage] = useState('');
   const [organizationName, setOrganizationName] = useState<string | null>(null);
   const [memberCount, setMemberCount] = useState<number | null>(null);
-
+  const [joinedChannelIds, setJoinedChannelIds] = useState<number[]>([]);
 
   const toggleSection = (section: SectionKey) => {
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
@@ -161,23 +159,41 @@ const Chat = () => {
     fetchMemberCount();
   }, [currentChannel?.id]);
 
+  // --- Load joined channels for current user (to avoid repeated /join calls) ---
+  useEffect(() => {
+    const loadJoinedChannels = async () => {
+      if (!user?.id) return;
+
+      const { data, error } = await supabase
+        .from('channel_members')
+        .select('channel_id')
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Error loading joined channels', error);
+        return;
+      }
+
+      const ids = (data || []).map((row: any) => row.channel_id as number);
+      setJoinedChannelIds(ids);
+    };
+
+    loadJoinedChannels();
+  }, [user?.id]);
+
   // --- Fetch Channels ---
   useEffect(() => {
     const fetchChannels = async () => {
       setLoadingChannels(true);
       try {
-        // 1) Get current user's organization_id from profiles
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
         let organizationId: number | null = null;
 
-        if (session?.user) {
+        if (user?.id) {
+          // 1) Get current user's organization_id from profiles
           const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('organization_id')
-            .eq('id', session.user.id)
+            .eq('id', user.id)
             .maybeSingle();
 
           if (!profileError && profile && profile.organization_id) {
@@ -196,7 +212,7 @@ const Chat = () => {
           }
         }
 
-        // 2) Fetch all channels (we'll filter client-side)
+        // 3) Fetch all channels (we'll filter client-side)
         const { data, error } = await supabase
           .from('channels')
           .select(
@@ -211,21 +227,21 @@ const Chat = () => {
 
         const all = (data || []) as Channel[];
 
-        // 3) Only my college's channels (scope=college AND org_id matches)
+        // 4) Only my college's channels (scope=college AND org_id matches)
         const myCollege = all.filter((c) => {
           if (c.scope !== 'college') return false;
           if (!organizationId) return false; // no org -> no college-specific channels
           return c.organization_id === organizationId;
         });
 
-        // 4) Only my college's subject channels
+        // 5) Only my college's subject channels
         const subjects = all.filter((c) => {
           if (c.type !== 'subject') return false;
           if (!organizationId) return false;
           return c.organization_id === organizationId;
         });
 
-        // 5) Global channels are shared across colleges
+        // 6) Global channels are shared across colleges
         const global = all.filter(
           (c) => c.scope === 'global' || c.type === 'global'
         );
@@ -236,7 +252,7 @@ const Chat = () => {
           global,
         });
 
-        // 6) Set default selected channel
+        // 7) Set default selected channel
         if (!selectedChannelId) {
           const firstChannel = myCollege[0] || subjects[0] || global[0] || null;
           if (firstChannel) {
@@ -249,8 +265,7 @@ const Chat = () => {
     };
 
     fetchChannels();
-  }, [selectedChannelId]);
-
+  }, [user?.id, selectedChannelId]);
 
   // --- Load Messages for a Channel (with sender names) ---
   const loadMessages = useCallback(async (channelId: number) => {
@@ -337,45 +352,44 @@ const Chat = () => {
   }, [selectedChannelId, loadMessages]);
 
   // Join channel via backend (Flask)
-  const joinChannel = useCallback(async (channelId: number) => {
-    try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+  const joinChannel = useCallback(
+    async (channelId: number) => {
+      try {
+        const token = session?.access_token;
+        if (!token) {
+          console.warn('No auth token found while trying to join channel');
+          return;
+        }
 
-      const token = session?.access_token;
-      if (!token) {
-        console.warn('No auth token found while trying to join channel');
-        return;
+        await fetch(`${BACKEND_URL}/channels/${channelId}/join`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+      } catch (err) {
+        console.error('Error joining channel:', err);
       }
+    },
+    [session?.access_token]
+  );
 
-      await fetch(`${BACKEND_URL}/channels/${channelId}/join`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-    } catch (err) {
-      console.error('Error joining channel:', err);
-    }
-  }, []);
-
-  const handleChannelSelect = (channel: Channel) => {
+  const handleChannelSelect = async (channel: Channel) => {
     setSelectedChannelId(channel.id);
     setSidebarOpen(false);
-    // fire & forget; if user already a member, backend does nothing
-    joinChannel(channel.id);
+
+    // Call /join only if not already a member
+    if (!joinedChannelIds.includes(channel.id)) {
+      await joinChannel(channel.id);
+      setJoinedChannelIds((prev) => [...prev, channel.id]);
+    }
   };
 
   const handleSendMessage = async () => {
     if (!currentChannel || !newMessage.trim()) return;
     setSending(true);
     try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
       const token = session?.access_token;
       if (!token) {
         console.warn('No auth token, cannot send message');
@@ -421,9 +435,10 @@ const Chat = () => {
         onClick={() => handleChannelSelect(channel)}
         className={`
           flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-200
-          ${isSelected
-            ? 'bg-primary/15 text-primary font-medium shadow-sm'
-            : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+          ${
+            isSelected
+              ? 'bg-primary/15 text-primary font-medium shadow-sm'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
           }
         `}
       >
@@ -601,20 +616,19 @@ const Chat = () => {
                 <Menu className="w-5 h-5" />
               </Button>
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                {currentChannel && (
+                {currentChannel &&
                   (() => {
                     const Icon = getChannelIcon(currentChannel);
                     return <Icon className="w-5 h-5 text-primary" />;
-                  })()
-                )}
+                  })()}
               </div>
 
               <div>
                 <h2 className="font-semibold text-foreground text-base">
                   {currentChannel
                     ? currentChannel.name ||
-                    currentChannel.subject_name ||
-                    'Channel'
+                      currentChannel.subject_name ||
+                      'Channel'
                     : 'Select a channel'}
                 </h2>
                 <p className="text-xs text-muted-foreground">
@@ -655,8 +669,7 @@ const Chat = () => {
                   [],
                   { hour: '2-digit', minute: '2-digit' }
                 );
-                const displayName =
-                  message.sender_full_name || 'Member';
+                const displayName = message.sender_full_name || 'Member';
                 const initials = getInitials(displayName);
                 return (
                   <div
