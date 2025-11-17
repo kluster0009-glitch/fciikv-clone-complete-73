@@ -12,6 +12,7 @@ import Index from "./pages/Index";
 import Feed from "./pages/Feed";
 import QA from "./pages/QA";
 import Chat from "./pages/Chat";
+import Notifications from "./pages/Notifications";
 import Library from "./pages/Library";
 import Professor from "./pages/Professor";
 import Events from "./pages/Events";
@@ -55,6 +56,7 @@ const AppContent = () => {
             <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
             <Route path="/qa" element={<ProtectedRoute><QA /></ProtectedRoute>} />
             <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+            <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
             <Route path="/library" element={<ProtectedRoute><Library /></ProtectedRoute>} />
             <Route path="/professor" element={<ProtectedRoute><Professor /></ProtectedRoute>} />
             <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />

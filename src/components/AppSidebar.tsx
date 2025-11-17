@@ -16,7 +16,8 @@ import {
   Moon,
   Sun,
   Menu,
-  Plus
+  Plus,
+  Bell
 } from 'lucide-react';
 import {
   Sidebar,
@@ -37,6 +38,7 @@ import logo from '@/assets/logo.svg';
 const navItems = [
   { icon: MessageSquare, label: 'Cluster', path: '/feed' },
   { icon: Send, label: 'Chat', path: '/chat' },
+  { icon: Bell, label: 'Notifications', path: '/notifications' },
   { icon: HelpCircle, label: 'Q&A', path: '/qa' },
   { icon: BookOpen, label: 'Library', path: '/library' },
   { icon: GraduationCap, label: 'Professor', path: '/professor' },
