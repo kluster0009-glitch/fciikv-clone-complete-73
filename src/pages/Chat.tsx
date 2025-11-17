@@ -20,7 +20,8 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { BACKEND_URL } from '@/config';
 import { useAuth } from '@/contexts/AuthContext';
-
+import { ChatMessage } from '@/components/ChatMessage';
+import { UserProfileModal } from '@/components/UserProfileModal';
 type ChannelType = 'college' | 'subject' | 'global' | 'study_group';
 type ChannelScope = 'college' | 'global';
 
@@ -83,6 +84,8 @@ const Chat = () => {
   const [organizationName, setOrganizationName] = useState<string | null>(null);
   const [memberCount, setMemberCount] = useState<number | null>(null);
   const [joinedChannelIds, setJoinedChannelIds] = useState<number[]>([]);
+  const [profileModalUserId, setProfileModalUserId] = useState<string | null>(null);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
   const toggleSection = (section: SectionKey) => {
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
@@ -664,39 +667,22 @@ const Chat = () => {
                   Select a channel to view messages.
                 </p>
               )}
-              {messages.map((message) => {
-                const time = new Date(message.created_at).toLocaleTimeString(
-                  [],
-                  { hour: '2-digit', minute: '2-digit' }
-                );
-                const displayName = message.sender_full_name || 'Member';
-                const initials = getInitials(displayName);
-                return (
-                  <div
-                    key={message.id}
-                    className="flex items-start gap-2.5 md:gap-3.5 group hover:bg-muted/30 -mx-2 md:-mx-3 px-2 md:px-3 py-2 rounded-lg transition-colors"
-                  >
-                    <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary via-secondary to-accent rounded-full flex items-center justify-center shadow-md flex-shrink-0">
-                      <span className="text-primary-foreground font-semibold text-xs md:text-sm">
-                        {initials}
-                      </span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-baseline gap-2 mb-0.5 md:mb-1">
-                        <span className="font-semibold text-foreground text-xs md:text-sm">
-                          {displayName}
-                        </span>
-                        <span className="text-[10px] md:text-xs text-muted-foreground">
-                          {time}
-                        </span>
-                      </div>
-                      <p className="text-xs md:text-sm text-foreground/90 leading-relaxed">
-                        {message.content}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
+              {messages.map((message) => (
+                <ChatMessage
+                  key={message.id}
+                  message={message}
+                  getInitials={getInitials}
+                  onViewProfile={(userId) => {
+                    setProfileModalUserId(userId);
+                    setProfileModalOpen(true);
+                  }}
+                />
+              ))}
+              <UserProfileModal
+                userId={profileModalUserId}
+                open={profileModalOpen}
+                onOpenChange={setProfileModalOpen}
+              />
             </div>
           </ScrollArea>
 
