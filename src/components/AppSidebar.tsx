@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from 'next-themes';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
 import { 
   Home, 
   MessageSquare, 
@@ -33,6 +34,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { CreatePostModal } from '@/components/CreatePostModal';
 import logo from '@/assets/logo.svg';
 
 const navItems = [
@@ -52,6 +54,7 @@ export function AppSidebar() {
   const location = useLocation();
   const { open, toggleSidebar } = useSidebar();
   const currentPath = location.pathname;
+  const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
 
   const handleThemeToggle = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
@@ -64,7 +67,12 @@ export function AppSidebar() {
   const isActive = (path: string) => currentPath === path;
 
   return (
-    <Sidebar collapsible="icon" className={`${open ? 'w-60' : 'w-16'} transition-all duration-300 border-r border-cyber-border bg-cyber-darker/95 backdrop-blur-xl`}>
+    <>
+      <CreatePostModal 
+        open={isCreatePostOpen} 
+        onOpenChange={setIsCreatePostOpen}
+      />
+      <Sidebar collapsible="icon" className={`${open ? 'w-60' : 'w-16'} transition-all duration-300 border-r border-cyber-border bg-cyber-darker/95 backdrop-blur-xl`}>
       {/* Header with Logo and Hamburger */}
       <SidebarHeader className="border-b border-cyber-border p-2">
         <div className="flex items-center gap-0 ${open ? 'justify-between' : 'justify-center'}` ">
@@ -98,6 +106,7 @@ export function AppSidebar() {
               {/* Create Post Button */}
               <SidebarMenuItem>
                 <Button 
+                  onClick={() => setIsCreatePostOpen(true)}
                   className={`${open ? 'w-full' : 'w-10 h-10 p-0'} bg-gradient-to-r from-neon-purple to-neon-cyan text-black font-semibold`}
                 >
                   <Plus className="w-4 h-4" />
@@ -183,5 +192,6 @@ export function AppSidebar() {
         </div>
       </SidebarFooter>
     </Sidebar>
+    </>
   );
 }

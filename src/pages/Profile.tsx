@@ -1,81 +1,74 @@
 import { useState, useEffect } from 'react';
-import { Camera, User, Home, Edit2 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { Settings, Grid, Bookmark, UserSquare2, Link as LinkIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
+
+interface Post {
+  id: string;
+  title: string;
+  content: string;
+  image_url: string | null;
+  likes_count: number;
+  comments_count: number;
+  created_at: string;
+}
 
 const Profile = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
   const [profileImage, setProfileImage] = useState<string>('');
   const [username, setUsername] = useState<string>('');
   const [fullName, setFullName] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
-  const [collegeName, setCollegeName] = useState<string>('');
-  const [department, setDepartment] = useState<string>('');
-  const [rollNumber, setRollNumber] = useState<string>('');
   const [bio, setBio] = useState<string>('');
-  const [role, setRole] = useState<string>('');
-  const [accountCreated, setAccountCreated] = useState<string>('');
-  const [loginType, setLoginType] = useState<string>('');
+  const [postsCount, setPostsCount] = useState<number>(0);
+  const [followersCount] = useState<number>(11);
+  const [followingCount] = useState<number>(9);
+  const [userPosts, setUserPosts] = useState<Post[]>([]);
+  const [activeTab, setActiveTab] = useState('posts');
 
   useEffect(() => {
     const loadProfile = async () => {
       if (!user) return;
       
       try {
-        // Fetch profile with college name from email_domains
         const { data, error } = await supabase
           .from('profiles')
-          .select(`
-            *,
-            email_domains:organization_id (
-              organization_name
-            )
-          `)
+          .select('*')
           .eq('id', user.id)
           .single();
 
-      if (error) {
-        if (import.meta.env.DEV) console.error('Error loading profile:', error);
-        toast.error('Failed to load profile');
-        return;
-      }
+        if (error) {
+          if (import.meta.env.DEV) console.error('Error loading profile:', error);
+          toast.error('Failed to load profile');
+          return;
+        }
 
         if (data) {
-          setUsername(data.username || '');
-          setFullName(data.full_name || '');
-          setEmail(data.email || '');
-          setCollegeName(data.email_domains?.organization_name || '');
-          setDepartment(data.department || '');
-          setRollNumber(data.roll_number || '');
+          setUsername(data.username || 'user');
+          setFullName(data.full_name || 'User');
           setBio(data.bio || '');
           setProfileImage(data.profile_picture || '');
-          setRole(data.role || '');
         }
 
-        // Get auth metadata
-        if (user.created_at) {
-          setAccountCreated(new Date(user.created_at).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          }));
-        }
+        const { data: posts, error: postsError } = await supabase
+          .from('posts')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
 
-        // Determine login type from identities
-        const provider = user.app_metadata?.provider || 
-                        user.identities?.[0]?.provider || 
-                        'email';
-        setLoginType(provider.charAt(0).toUpperCase() + provider.slice(1));
+        if (postsError) {
+          if (import.meta.env.DEV) console.error('Error loading posts:', postsError);
+        } else {
+          setUserPosts(posts || []);
+          setPostsCount(posts?.length || 0);
+        }
       } catch (error) {
         if (import.meta.env.DEV) console.error('Error:', error);
         toast.error('Failed to load profile');
@@ -86,80 +79,6 @@ const Profile = () => {
 
     loadProfile();
   }, [user]);
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSave = async () => {
-    if (!user) return;
-
-    setSaving(true);
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          username,
-          full_name: fullName,
-          department,
-          roll_number: rollNumber,
-          bio,
-          profile_picture: profileImage,
-        })
-        .eq('id', user.id);
-
-      if (error) {
-        if (import.meta.env.DEV) console.error('Error updating profile:', error);
-        toast.error('Failed to save profile');
-        return;
-      }
-
-      toast.success('Profile updated successfully!');
-      setIsEditing(false);
-    } catch (error) {
-      if (import.meta.env.DEV) console.error('Error:', error);
-      toast.error('Failed to save profile');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleCancel = async () => {
-    setIsEditing(false);
-    // Reload profile data to reset any unsaved changes
-    if (!user) return;
-    
-    try {
-      const { data } = await supabase
-        .from('profiles')
-        .select(`
-          *,
-          email_domains:organization_id (
-            organization_name
-          )
-        `)
-        .eq('id', user.id)
-        .single();
-
-      if (data) {
-        setUsername(data.username || '');
-        setFullName(data.full_name || '');
-        setDepartment(data.department || '');
-        setRollNumber(data.roll_number || '');
-        setBio(data.bio || '');
-        setProfileImage(data.profile_picture || '');
-      }
-    } catch (error) {
-      if (import.meta.env.DEV) console.error('Error reloading profile:', error);
-    }
-  };
 
   if (loading) {
     return (
@@ -172,192 +91,136 @@ const Profile = () => {
   return (
     <div className="min-h-screen immersive-bg">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-neon-purple to-neon-cyan bg-clip-text text-transparent mb-2">
-              Profile Dashboard
-            </h1>
-            <p className="text-muted-foreground">Manage your profile information</p>
+        <div className="mb-8">
+          <div className="flex items-start gap-8 mb-6">
+            <Avatar className="w-32 h-32 border-2 border-cyber-border">
+              <AvatarImage src={profileImage} alt={fullName} />
+              <AvatarFallback className="bg-gradient-to-br from-neon-purple to-neon-cyan text-black text-3xl font-bold">
+                {fullName?.[0]?.toUpperCase() || 'U'}
+              </AvatarFallback>
+            </Avatar>
+
+            <div className="flex-1">
+              <div className="flex items-center gap-4 mb-6">
+                <h1 className="text-2xl font-normal text-foreground">{username}</h1>
+                <Button
+                  variant="outline"
+                  className="bg-cyber-card border-cyber-border hover:bg-cyber-card/80 text-foreground"
+                  onClick={() => navigate('/settings')}
+                >
+                  Edit profile
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="text-foreground"
+                  onClick={() => navigate('/settings')}
+                >
+                  View archive
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-foreground"
+                  onClick={() => navigate('/settings')}
+                >
+                  <Settings className="w-6 h-6" />
+                </Button>
+              </div>
+
+              <div className="flex gap-8 mb-6">
+                <div className="flex items-center gap-1">
+                  <span className="font-semibold text-foreground">{postsCount}</span>
+                  <span className="text-foreground">post{postsCount !== 1 ? 's' : ''}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="font-semibold text-foreground">{followersCount}</span>
+                  <span className="text-foreground">followers</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="font-semibold text-foreground">{followingCount}</span>
+                  <span className="text-foreground">following</span>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <p className="font-semibold text-foreground">{fullName}</p>
+                {bio && <p className="text-foreground whitespace-pre-wrap">{bio}</p>}
+                <a 
+                  href="https://kluster.in" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-neon-cyan hover:underline"
+                >
+                  <LinkIcon className="w-3 h-3" />
+                  kluster.in
+                </a>
+              </div>
+            </div>
           </div>
-          <Button
-            variant="outline"
-            className="border-neon-purple/30 text-foreground hover:bg-neon-purple/10"
-            onClick={() => window.location.href = '/'}
-          >
-            <Home className="w-4 h-4 mr-2" />
-            Back to Home
-          </Button>
         </div>
 
-        <Card className="bg-card border-cyber-border glow-border">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-2xl text-foreground">Personal Information</CardTitle>
-            {!isEditing && (
-              <Button
-                variant="outline"
-                className="border-neon-purple/30 text-foreground hover:bg-neon-purple/10"
-                onClick={() => setIsEditing(true)}
-              >
-                <Edit2 className="w-4 h-4 mr-2" />
-                Edit Profile
-              </Button>
-            )}
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Profile Picture Section */}
-            <div className="flex flex-col items-center space-y-4">
-              <div className="relative group">
-                <Avatar className="w-32 h-32 border-4 border-neon-purple/30">
-                  <AvatarImage src={profileImage} alt="Profile" />
-                  <AvatarFallback className="bg-gradient-to-br from-neon-purple to-neon-cyan text-cyber-dark text-2xl">
-                    <User className="w-12 h-12" />
-                  </AvatarFallback>
-                </Avatar>
-                {isEditing && (
-                  <>
-                    <label
-                      htmlFor="profile-upload"
-                      className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                    >
-                      <Camera className="w-8 h-8 text-neon-cyan" />
-                    </label>
-                    <input
-                      id="profile-upload"
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleImageChange}
-                    />
-                  </>
-                )}
-              </div>
-              {isEditing && <p className="text-sm text-muted-foreground">Click to upload profile picture</p>}
-            </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="w-full grid grid-cols-3 bg-transparent border-t border-cyber-border h-auto p-0">
+            <TabsTrigger value="posts" className="data-[state=active]:border-t-2 data-[state=active]:border-foreground rounded-none py-4 gap-2">
+              <Grid className="w-4 h-4" />
+              <span className="hidden sm:inline">POSTS</span>
+            </TabsTrigger>
+            <TabsTrigger value="saved" className="data-[state=active]:border-t-2 data-[state=active]:border-foreground rounded-none py-4 gap-2">
+              <Bookmark className="w-4 h-4" />
+              <span className="hidden sm:inline">SAVED</span>
+            </TabsTrigger>
+            <TabsTrigger value="tagged" className="data-[state=active]:border-t-2 data-[state=active]:border-foreground rounded-none py-4 gap-2">
+              <UserSquare2 className="w-4 h-4" />
+              <span className="hidden sm:inline">TAGGED</span>
+            </TabsTrigger>
+          </TabsList>
 
-            {/* Account Info */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg">
-              <div>
-                <Label className="text-xs text-muted-foreground">Account Created</Label>
-                <p className="text-sm font-medium text-foreground">{accountCreated}</p>
+          <TabsContent value="posts" className="mt-8">
+            {userPosts.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16">
+                <div className="w-24 h-24 rounded-full border-4 border-cyber-border flex items-center justify-center mb-6">
+                  <Grid className="w-12 h-12 text-muted-foreground" />
+                </div>
+                <h3 className="text-2xl font-bold text-foreground mb-2">Share Photos</h3>
+                <p className="text-muted-foreground">When you share photos, they will appear on your profile.</p>
               </div>
-              <div>
-                <Label className="text-xs text-muted-foreground">Login Type</Label>
-                <p className="text-sm font-medium text-foreground">{loginType}</p>
-              </div>
-              <div>
-                <Label className="text-xs text-muted-foreground">Role</Label>
-                <p className="text-sm font-medium text-foreground capitalize">{role}</p>
-              </div>
-            </div>
-
-            {/* Form Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="username" className="text-foreground">Username</Label>
-                <Input
-                  id="username"
-                  placeholder="Enter your username"
-                  className="bg-input border-border focus:border-neon-purple"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  disabled={!isEditing}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="fullname" className="text-foreground">Full Name</Label>
-                <Input
-                  id="fullname"
-                  placeholder="Enter your full name"
-                  className="bg-input border-border focus:border-neon-purple"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  disabled={!isEditing}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-foreground">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  className="bg-input border-border focus:border-neon-purple"
-                  value={email}
-                  disabled
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="college" className="text-foreground">College Name</Label>
-                <Input
-                  id="college"
-                  placeholder="College name from organization"
-                  className="bg-input border-border focus:border-neon-purple"
-                  value={collegeName}
-                  disabled
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="department" className="text-foreground">Department</Label>
-                <Input
-                  id="department"
-                  placeholder="Enter your department"
-                  className="bg-input border-border focus:border-neon-purple"
-                  value={department}
-                  onChange={(e) => setDepartment(e.target.value)}
-                  disabled={!isEditing}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="rollnumber" className="text-foreground">Roll Number</Label>
-                <Input
-                  id="rollnumber"
-                  placeholder="Enter your roll number"
-                  className="bg-input border-border focus:border-neon-purple"
-                  value={rollNumber}
-                  onChange={(e) => setRollNumber(e.target.value)}
-                  disabled={!isEditing}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="bio" className="text-foreground">Bio</Label>
-              <Textarea
-                id="bio"
-                placeholder="Tell us about yourself..."
-                className="bg-input border-border focus:border-neon-purple min-h-[120px]"
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                disabled={!isEditing}
-              />
-            </div>
-
-            {/* Action Buttons - Only show when editing */}
-            {isEditing && (
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Button 
-                  className="flex-1 bg-gradient-to-r from-neon-purple to-neon-cyan text-cyber-dark hover:opacity-90 transition-opacity"
-                  onClick={handleSave}
-                  disabled={saving}
-                >
-                  {saving ? 'Saving...' : 'Save Changes'}
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="flex-1 border-neon-purple/30 text-foreground hover:bg-neon-purple/10"
-                  onClick={handleCancel}
-                  disabled={saving}
-                >
-                  Cancel
-                </Button>
+            ) : (
+              <div className="grid grid-cols-3 gap-1">
+                {userPosts.map((post) => (
+                  <Card key={post.id} className="aspect-square bg-cyber-card border-cyber-border overflow-hidden cursor-pointer hover:opacity-80 transition-opacity">
+                    {post.image_url ? (
+                      <img src={post.image_url} alt={post.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-neon-purple/20 to-neon-cyan/20 p-4">
+                        <p className="text-sm text-center text-foreground line-clamp-4">{post.title}</p>
+                      </div>
+                    )}
+                  </Card>
+                ))}
               </div>
             )}
-          </CardContent>
-        </Card>
+          </TabsContent>
+
+          <TabsContent value="saved" className="mt-8">
+            <div className="flex flex-col items-center justify-center py-16">
+              <div className="w-24 h-24 rounded-full border-4 border-cyber-border flex items-center justify-center mb-6">
+                <Bookmark className="w-12 h-12 text-muted-foreground" />
+              </div>
+              <h3 className="text-2xl font-bold text-foreground mb-2">Save</h3>
+              <p className="text-muted-foreground">Save photos and videos that you want to see again.</p>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="tagged" className="mt-8">
+            <div className="flex flex-col items-center justify-center py-16">
+              <div className="w-24 h-24 rounded-full border-4 border-cyber-border flex items-center justify-center mb-6">
+                <UserSquare2 className="w-12 h-12 text-muted-foreground" />
+              </div>
+              <h3 className="text-2xl font-bold text-foreground mb-2">Photos of you</h3>
+              <p className="text-muted-foreground">When people tag you in photos, they'll appear here.</p>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
