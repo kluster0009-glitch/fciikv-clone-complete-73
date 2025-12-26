@@ -22,6 +22,7 @@ import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import NotFound from "./pages/NotFound";
+import OnboardingTest from "./pages/OnboardingTest";
 import { useAuth } from "@/contexts/AuthContext";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const AppContent = () => {
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/onboarding-test" element={<OnboardingTest />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     );
